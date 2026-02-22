@@ -222,6 +222,47 @@ class LillithAPITester:
         
         return success
 
+    def test_lm_studio_offline_endpoints(self):
+        """Test LM Studio offline endpoints - should return 502"""
+        results = []
+        
+        # Test getting models when LM Studio is offline
+        success, response = self.run_test(
+            "Get AI Models (LM Studio Offline)",
+            "GET",
+            "ai/models",
+            502  # Should fail with 502 when LM Studio unavailable
+        )
+        results.append(success)
+        
+        # Test story bible generation when LM Studio is offline
+        if self.project_id:
+            test_project_id = self.project_id
+        else:
+            # Create a quick test project for this test
+            success_create, project = self.run_test(
+                "Create Test Project for Story Bible",
+                "POST",
+                "projects",
+                200,
+                data={"name": "LM Studio Test Project", "description": "Test", "genre": "Test"}
+            )
+            if success_create and 'id' in project:
+                test_project_id = project['id']
+            else:
+                return False
+        
+        success, response = self.run_test(
+            "Generate Story Bible (LM Studio Offline)",
+            "POST",
+            "ai/story-bible/stream",
+            502,  # Should fail with 502 when LM Studio unavailable
+            data={"project_id": test_project_id, "model": "test-model"}
+        )
+        results.append(success)
+        
+        return all(results)
+
     def test_edge_cases(self):
         """Test edge cases and error conditions"""
         results = []
