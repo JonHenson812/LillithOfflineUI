@@ -2116,7 +2116,7 @@ const VisualStudio = () => {
             />
           </label>
           <div className="helper" data-testid="comfy-helper">
-            Export your workflow from ComfyUI (Queue -> Export) and paste it here.
+            Export your workflow from ComfyUI (Queue  Export) and paste it here.
           </div>
           <button
             className="lilith-button"
