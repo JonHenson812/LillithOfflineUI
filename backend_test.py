@@ -619,6 +619,7 @@ def main():
         ("Settings API", tester.test_settings_api),
         ("Projects CRUD", tester.test_projects_crud),
         ("Character Autofill", tester.test_character_autofill),
+        ("Story Bible Briefing", tester.test_story_bible_briefing),
         ("Plugins Endpoint", tester.test_plugins_endpoint),
         ("Services API", tester.test_services_api),
         ("Services Bulk Operations", tester.test_services_bulk_operations),
