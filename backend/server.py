@@ -158,6 +158,8 @@ class StoryBibleRequest(BaseModel):
     project_id: str
     model: str
     tone: Optional[str] = None
+    length: Optional[str] = None
+    tags: Optional[str] = None
 
 
 class ServiceConfig(BaseModel):
