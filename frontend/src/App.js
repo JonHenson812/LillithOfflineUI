@@ -1287,7 +1287,7 @@ const Services = () => {
             Services Console
           </div>
           <h1 className="page-title" data-testid="services-title">
-            Start, stop, and route Lilliths local AI tools.
+            Start, stop, and route Lillith's local AI tools.
           </h1>
         </div>
         <button
