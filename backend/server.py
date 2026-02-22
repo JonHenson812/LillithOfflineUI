@@ -605,6 +605,8 @@ async def stream_story_bible(request: StoryBibleRequest):
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
+    lm_base = normalize_lm_url(await get_lm_studio_base())
+
     prompt = (
         "You are Lillith, a narrative architect. Create a rich story bible with "
         "sections for Overview, Themes, World Rules, Key Locations, Factions, "
@@ -634,7 +636,7 @@ async def stream_story_bible(request: StoryBibleRequest):
             async with httpx.AsyncClient(timeout=None) as client:
                 async with client.stream(
                     "POST",
-                    f"{LM_STUDIO_URL}/chat/completions",
+                    f"{lm_base}/chat/completions",
                     json=payload,
                 ) as response:
                     response.raise_for_status()
