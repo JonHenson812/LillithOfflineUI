@@ -984,6 +984,12 @@ logger = logging.getLogger(__name__)
 @app.on_event("startup")
 async def startup_db():
     await init_db()
+    settings = await fetch_settings()
+    if settings.get("auto_start_services"):
+        try:
+            await start_services_bulk()
+        except Exception:
+            logger.warning("Auto-start services failed")
 
 
 @app.on_event("shutdown")
