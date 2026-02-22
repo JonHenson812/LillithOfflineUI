@@ -15,6 +15,8 @@ import random
 import asyncio
 import aiosqlite
 import httpx
+import subprocess
+import signal
 
 
 ROOT_DIR = Path(__file__).parent
