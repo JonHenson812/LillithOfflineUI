@@ -493,6 +493,49 @@ async def get_lm_studio_base() -> str:
     return LM_STUDIO_URL
 
 
+async def start_services_bulk() -> Dict[str, Any]:
+    services = await fetch_services()
+    results = []
+    for service in services:
+        command = service.get("start_command")
+        if not command:
+            results.append({"id": service["id"], "status": "skipped"})
+            continue
+        try:
+            pid = launch_command(command)
+            await update_service_pid(service["id"], pid)
+            results.append({"id": service["id"], "status": "started", "pid": pid})
+        except Exception:
+            results.append({"id": service["id"], "status": "error"})
+    return {"results": results}
+
+
+async def stop_services_bulk() -> Dict[str, Any]:
+    services = await fetch_services()
+    results = []
+    for service in services:
+        command = service.get("stop_command")
+        if command:
+            try:
+                launch_command(command)
+                await update_service_pid(service["id"], None)
+                results.append({"id": service["id"], "status": "stopped"})
+            except Exception:
+                results.append({"id": service["id"], "status": "error"})
+            continue
+        pid = service.get("last_pid")
+        if not pid:
+            results.append({"id": service["id"], "status": "skipped"})
+            continue
+        try:
+            stop_process(pid)
+            await update_service_pid(service["id"], None)
+            results.append({"id": service["id"], "status": "stopped"})
+        except Exception:
+            results.append({"id": service["id"], "status": "error"})
+    return {"results": results}
+
+
 def fill_value(value: Optional[str], options: List[str], seed: str) -> str:
     if value:
         return value
