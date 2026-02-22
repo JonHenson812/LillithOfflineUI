@@ -279,7 +279,7 @@ async def get_status_checks():
 
 @api_router.get("/projects", response_model=List[Project])
 async def list_projects():
-    projects = await read_projects()
+    projects = await fetch_projects()
     return projects
 
 
