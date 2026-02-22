@@ -1221,12 +1221,18 @@ const Services = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState("");
+  const [settings, setSettings] = useState({
+    auto_start_services: false,
+    auto_refresh_services: false,
+  });
+  const [lastUpdated, setLastUpdated] = useState("");
 
   const loadServices = async () => {
     setLoading(true);
     try {
       const response = await axios.get(`${API}/services`);
       setServices(response.data);
+      setLastUpdated(new Date().toLocaleTimeString());
     } catch (error) {
       console.error(error);
       setNotice("Unable to load services.");
@@ -1235,9 +1241,37 @@ const Services = () => {
     }
   };
 
+  const loadSettings = async () => {
+    try {
+      const response = await axios.get(`${API}/settings`);
+      setSettings(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     loadServices();
+    loadSettings();
   }, []);
+
+  useEffect(() => {
+    if (!settings.auto_refresh_services) return;
+    const interval = setInterval(() => {
+      loadServices();
+    }, 20000);
+    return () => clearInterval(interval);
+  }, [settings.auto_refresh_services]);
+
+  const updateSettings = async (updates) => {
+    try {
+      const response = await axios.put(`${API}/settings`, updates);
+      setSettings(response.data);
+    } catch (error) {
+      console.error(error);
+      setNotice("Unable to update settings.");
+    }
+  };
 
   const startAllServices = async () => {
     setNotice("");
