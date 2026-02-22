@@ -821,7 +821,9 @@ async def stream_story_bible(request: StoryBibleRequest):
         f"Project name: {project.get('name')}. "
         f"Genre: {project.get('genre') or 'Not specified'}. "
         f"Description: {project.get('description') or 'No description provided'}. "
-        f"Tone: {request.tone or 'Cinematic, immersive, and character-driven'}."
+        f"Tone: {request.tone or 'Cinematic, immersive, and character-driven'}. "
+        f"Target length: {request.length or '1-2 pages'}. "
+        f"Focus tags: {request.tags or 'None'}."
     )
 
     payload = {
