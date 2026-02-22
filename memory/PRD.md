@@ -6,7 +6,7 @@ Build "Lillith Offline" (desktop-first, then web UI) to automate writing books. 
 ## Architecture Decisions
 - Frontend: React (CRA + Tailwind utilities) with custom stylized UI.
 - Backend: FastAPI, extended with local SQLite storage for offline projects.
-- Storage: SQLite file `/app/backend/data/lillith.sqlite` for projects; local storage for UI state.
+- Storage: SQLite file `/app/backend/data/lillith.sqlite` for projects and settings; local storage for UI state.
 - Plugin discovery: Directory scan from `/app/plugins`.
 - AI: LM Studio integration (OpenAI-compatible API) for story-bible generation; streaming responses.
 - Services control: Backend-managed service registry for LM Studio, ComfyUI, and Stable Diffusion with start/stop commands.
@@ -21,7 +21,8 @@ Build "Lillith Offline" (desktop-first, then web UI) to automate writing books. 
 - Online/offline mode toggle UI.
 - LM Studio model scan endpoint + dropdown with refresh button.
 - Streaming story bible generation endpoint + UI button with live updates.
-- Services Console with start/stop (per service + start/stop all), health checks, and editable commands + URLs.
+- Services Console with start/stop (per service + bulk), health checks, editable commands + URLs.
+- Service preferences: auto-start toggle, auto-refresh toggle (20s), last-updated indicator.
 - Standard menu bar (File/Edit/View/Tools/Help) and troubleshooting tips for local installs.
 
 ## Prioritized Backlog
