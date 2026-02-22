@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": "fd50a8e5-0e75-4a54-beeb-54d908f28ec1",
+    "name": "Test World",
+    "description": "QA story",
+    "genre": "Fantasy",
+    "story_bible": null,
+    "character_profile": null,
+    "created_at": "2026-02-22T05:50:22.074744+00:00",
+    "updated_at": "2026-02-22T05:50:22.074744+00:00"
+  }
+]
