@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route, NavLink, useNavigate } from "react-router-dom";
+import { Canvas, useFrame } from "@react-three/fiber";
 import axios from "axios";
 import {
   Bot,
