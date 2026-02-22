@@ -823,6 +823,11 @@ const Projects = ({ activeProject, setActiveProject, selectedModel, modelStatus 
   });
   const [notice, setNotice] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [storyBrief, setStoryBrief] = useState({
+    tone: "",
+    length: "",
+    tags: "",
+  });
 
   const loadProjects = async () => {
     setLoading(true);
