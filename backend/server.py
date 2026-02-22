@@ -170,6 +170,16 @@ class ServiceUpdate(BaseModel):
     stop_command: Optional[str] = None
 
 
+class AppSettings(BaseModel):
+    auto_start_services: bool = False
+    auto_refresh_services: bool = False
+
+
+class SettingsUpdate(BaseModel):
+    auto_start_services: Optional[bool] = None
+    auto_refresh_services: Optional[bool] = None
+
+
 class PluginInfo(BaseModel):
     name: str
     path: str
