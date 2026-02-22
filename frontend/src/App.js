@@ -288,9 +288,10 @@ const SideNav = () => {
 };
 
 
-const AvatarScene = ({ emotion }) => {
-  const meshRef = useRef(null);
-  const ringRef = useRef(null);
+const AvatarCanvas = ({ emotion }) => {
+  const canvasRef = useRef(null);
+  const materialRef = useRef(null);
+  const ringMaterialRef = useRef(null);
   const colors = useMemo(
     () => ({
       idle: "#53d3ff",
@@ -300,44 +301,101 @@ const AvatarScene = ({ emotion }) => {
     }),
     []
   );
-  const color = colors[emotion] || colors.idle;
 
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
-    if (meshRef.current) {
-      meshRef.current.rotation.y = t * 0.4;
-      meshRef.current.rotation.x = Math.sin(t / 2) * 0.1;
-      meshRef.current.position.y = Math.sin(t) * 0.15;
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return undefined;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio || 1);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    camera.position.set(0, 0, 4);
+
+    const group = new THREE.Group();
+    scene.add(group);
+
+    const sphereMaterial = new THREE.MeshStandardMaterial({
+      color: colors.idle,
+      emissive: colors.idle,
+      emissiveIntensity: 0.4,
+      roughness: 0.25,
+      metalness: 0.6,
+    });
+    materialRef.current = sphereMaterial;
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(1.2, 64, 64), sphereMaterial);
+    group.add(sphere);
+
+    const ringMaterial = new THREE.MeshStandardMaterial({
+      color: colors.idle,
+      emissive: colors.idle,
+      emissiveIntensity: 0.6,
+      roughness: 0.4,
+    });
+    ringMaterialRef.current = ringMaterial;
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(1.8, 0.05, 16, 100), ringMaterial);
+    ring.rotation.x = Math.PI / 2;
+    group.add(ring);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const pointLight = new THREE.PointLight(0xffffff, 1.2);
+    pointLight.position.set(4, 4, 4);
+    scene.add(pointLight);
+
+    const container = canvas.parentElement;
+    const resize = () => {
+      if (!container) return;
+      const width = container.clientWidth || 320;
+      const height = container.clientHeight || 320;
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    let frameId = 0;
+    const animate = (time) => {
+      const t = time * 0.001;
+      sphere.rotation.y = t * 0.4;
+      sphere.rotation.x = Math.sin(t / 2) * 0.1;
+      sphere.position.y = Math.sin(t) * 0.15;
+      ring.rotation.z = t * 0.2;
+      renderer.render(scene, camera);
+      frameId = requestAnimationFrame(animate);
+    };
+    frameId = requestAnimationFrame(animate);
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      window.removeEventListener("resize", resize);
+      sphere.geometry.dispose();
+      ring.geometry.dispose();
+      sphereMaterial.dispose();
+      ringMaterial.dispose();
+      renderer.dispose();
+    };
+  }, [colors]);
+
+  useEffect(() => {
+    const color = new THREE.Color(colors[emotion] || colors.idle);
+    if (materialRef.current) {
+      materialRef.current.color = color;
+      materialRef.current.emissive = color;
     }
-    if (ringRef.current) {
-      ringRef.current.rotation.z = t * 0.2;
+    if (ringMaterialRef.current) {
+      ringMaterialRef.current.color = color;
+      ringMaterialRef.current.emissive = color;
     }
-  });
+  }, [emotion, colors]);
 
   return (
-    <group>
-      <ambientLight intensity={0.6} />
-      <pointLight position={[4, 4, 4]} intensity={1.2} />
-      <mesh ref={meshRef}>
-        <sphereGeometry args={[1.2, 64, 64]} />
-        <meshStandardMaterial
-          color={color}
-          emissive={color}
-          emissiveIntensity={0.4}
-          roughness={0.25}
-          metalness={0.6}
-        />
-      </mesh>
-      <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[1.8, 0.05, 16, 100]} />
-        <meshStandardMaterial
-          color={color}
-          emissive={color}
-          emissiveIntensity={0.6}
-          roughness={0.4}
-        />
-      </mesh>
-    </group>
+    <canvas
+      ref={canvasRef}
+      className="avatar-canvas"
+      data-testid="avatar-canvas"
+    />
   );
 };
 
