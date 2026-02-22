@@ -559,6 +559,13 @@
   display: block;
 }
 
+.story-bible-briefing {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
 .project-list {
   display: flex;
   flex-direction: column;
