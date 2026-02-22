@@ -933,6 +933,27 @@ const Dashboard = () => {
                 ))}
               </select>
             </label>
+            <label className="form-field" data-testid="avatar-model-field">
+              <span className="field-label" data-testid="avatar-model-label">
+                Avatar model
+              </span>
+              <select
+                className="lilith-select"
+                value={selectedAvatarId}
+                onChange={(event) => handleAvatarSelect(event.target.value)}
+                data-testid="avatar-model-select"
+              >
+                {avatarOptions.map((option) => (
+                  <option
+                    key={option.id}
+                    value={option.id}
+                    data-testid={`avatar-model-option-${option.id}`}
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
             <label className="form-field" data-testid="avatar-upload-field">
               <span className="field-label" data-testid="avatar-upload-label">
                 Upload GLB/GLTF
@@ -946,12 +967,16 @@ const Dashboard = () => {
               />
               <div className="avatar-upload-actions" data-testid="avatar-upload-actions">
                 <span className="helper" data-testid="avatar-upload-helper">
-                  {avatarFileUrl ? "Custom avatar loaded." : "Using placeholder avatar."}
+                  {uploadedAvatarUrl
+                    ? "Custom avatar loaded."
+                    : resolvedAvatarUrl
+                    ? "Using default avatar."
+                    : "Using placeholder avatar."}
                 </span>
                 <button
                   className="lilith-button secondary"
                   onClick={clearAvatarFile}
-                  disabled={!avatarFileUrl}
+                  disabled={!uploadedAvatarUrl}
                   data-testid="avatar-upload-clear"
                 >
                   Clear upload
