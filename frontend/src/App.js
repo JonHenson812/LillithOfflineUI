@@ -1,51 +1,1155 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import axios from "axios";
+import {
+  Bot,
+  BookOpen,
+  LayoutGrid,
+  Plug,
+  UserRound,
+  Sparkles,
+  Orbit,
+  Wand2,
+  Layers,
+  Aperture,
+} from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const Home = () => {
-  const helloWorldApi = async () => {
+const navItems = [
+  {
+    path: "/",
+    label: "Command Deck",
+    icon: LayoutGrid,
+    testId: "nav-command-deck",
+  },
+  {
+    path: "/character-builder",
+    label: "Character Builder",
+    icon: UserRound,
+    testId: "nav-character-builder",
+  },
+  {
+    path: "/projects",
+    label: "Projects",
+    icon: BookOpen,
+    testId: "nav-projects",
+  },
+  {
+    path: "/plugins",
+    label: "Plugin Bay",
+    icon: Plug,
+    testId: "nav-plugins",
+  },
+];
+
+const TopBar = ({ activeProject, onlineMode, setOnlineMode }) => {
+  return (
+    <div className="topbar" data-testid="topbar">
+      <div className="topbar-left" data-testid="topbar-left">
+        <div className="app-title" data-testid="app-title">
+          Lillith Offline
+        </div>
+        <div className="status-chip" data-testid="status-chip">
+          <span
+            className={`status-dot ${onlineMode ? "online" : "offline"}`}
+            data-testid="status-dot"
+          />
+          <span data-testid="status-text">
+            {onlineMode ? "Online research" : "Local mode"}
+          </span>
+        </div>
+      </div>
+      <div className="topbar-right" data-testid="topbar-right">
+        <div className="active-project" data-testid="active-project">
+          <span className="label" data-testid="active-project-label">
+            Active Project
+          </span>
+          <span className="value" data-testid="active-project-name">
+            {activeProject?.name || "No project loaded"}
+          </span>
+        </div>
+        <button
+          className="lilith-button secondary"
+          onClick={() => setOnlineMode((value) => !value)}
+          data-testid="toggle-online-mode"
+        >
+          {onlineMode ? "Go Offline" : "Enable Online"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const SideNav = () => {
+  return (
+    <aside className="sidebar" data-testid="sidebar">
+      <div className="sidebar-header" data-testid="sidebar-header">
+        <Bot className="logo-icon" data-testid="sidebar-logo-icon" />
+        <div className="sidebar-title" data-testid="sidebar-title">
+          Lillith Core
+        </div>
+      </div>
+      <nav className="nav" data-testid="sidebar-nav">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "active" : ""}`
+              }
+              data-testid={item.testId}
+            >
+              <Icon className="nav-icon" data-testid={`${item.testId}-icon`} />
+              <span data-testid={`${item.testId}-label`}>{item.label}</span>
+            </NavLink>
+          );
+        })}
+      </nav>
+      <div className="sidebar-footer" data-testid="sidebar-footer">
+        <div className="sidebar-meta" data-testid="sidebar-meta">
+          <span className="label" data-testid="sidebar-meta-label">
+            Plugins
+          </span>
+          <span className="value" data-testid="sidebar-meta-value">
+            Drop-in ready
+          </span>
+        </div>
+        <div className="sidebar-meta" data-testid="sidebar-meta-status">
+          <span className="label" data-testid="sidebar-meta-status-label">
+            Status
+          </span>
+          <span className="value" data-testid="sidebar-meta-status-value">
+            Listening for updates
+          </span>
+        </div>
+      </div>
+    </aside>
+  );
+};
+
+const Dashboard = () => {
+  const [messages, setMessages] = useState([
+    {
+      id: "intro-1",
+      sender: "lillith",
+      text: "I’m synced locally and ready to build worlds with you. Where should we begin?",
+    },
+  ]);
+  const [chatInput, setChatInput] = useState("");
+  const [avatarMode, setAvatarMode] = useState("main");
+
+  const agentCards = [
+    {
+      id: "plot-architect",
+      name: "Plot Architect",
+      focus: "Structures arcs and turning points",
+      status: "Active",
+    },
+    {
+      id: "world-weaver",
+      name: "World Weaver",
+      focus: "Builds lore, cultures, and rules",
+      status: "Active",
+    },
+    {
+      id: "character-sentinel",
+      name: "Character Sentinel",
+      focus: "Tracks motivations + continuity",
+      status: "Listening",
+    },
+    {
+      id: "scene-forge",
+      name: "Scene Forge",
+      focus: "Turns beats into vivid scenes",
+      status: "Idle",
+    },
+  ];
+
+  const miniApps = [
+    {
+      id: "book-writer",
+      name: "Book Writer",
+      description: "Draft chapters, summaries, and edits.",
+    },
+    {
+      id: "role-play",
+      name: "Role Play",
+      description: "Choose-your-own-adventure story engine.",
+    },
+    {
+      id: "graphic-designer",
+      name: "Graphic Designer",
+      description: "Covers, concept art, and layouts.",
+    },
+    {
+      id: "illustration-video",
+      name: "Illustration + Video",
+      description: "Connects to Stable Diffusion & ComfyUI.",
+    },
+    {
+      id: "raspberry-pi",
+      name: "Raspberry Pi Lab",
+      description: "Prototype hardware-driven narratives.",
+    },
+  ];
+
+  const sendMessage = () => {
+    if (!chatInput.trim()) return;
+    const userMessage = {
+      id: `user-${Date.now()}`,
+      sender: "user",
+      text: chatInput.trim(),
+    };
+    setMessages((prev) => [...prev, userMessage]);
+    setChatInput("");
+    setTimeout(() => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `lillith-${Date.now()}`,
+          sender: "lillith",
+          text: "I’m mapping that across the agent grid. Want a character spun up next?",
+        },
+      ]);
+    }, 700);
+  };
+
+  return (
+    <div className="page" data-testid="dashboard-page">
+      <div className="hero" data-testid="dashboard-hero">
+        <div className="hero-text" data-testid="dashboard-hero-text">
+          <div className="eyebrow" data-testid="dashboard-hero-eyebrow">
+            Lillith Offline Command Deck
+          </div>
+          <h1 className="hero-title" data-testid="dashboard-hero-title">
+            Build entire universes without leaving your desktop.
+          </h1>
+          <p className="hero-subtitle" data-testid="dashboard-hero-subtitle">
+            Parallel agents handle the routine. You stay focused on the moments that
+            matter.
+          </p>
+        </div>
+        <div className="hero-actions" data-testid="dashboard-hero-actions">
+          <button className="lilith-button" data-testid="hero-start-session">
+            Start a new session
+          </button>
+          <button
+            className="lilith-button secondary"
+            data-testid="hero-open-projects"
+          >
+            Open saved worlds
+          </button>
+        </div>
+      </div>
+
+      <div className="grid two-column" data-testid="dashboard-main-grid">
+        <div className="glass-panel" data-testid="chat-panel">
+          <div className="panel-header" data-testid="chat-panel-header">
+            <div className="panel-title" data-testid="chat-panel-title">
+              Lillith Chat
+            </div>
+            <span className="panel-badge" data-testid="chat-panel-badge">
+              Adaptive voice + memory
+            </span>
+          </div>
+          <div className="chat-window" data-testid="chat-window">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`chat-bubble ${message.sender}`}
+                data-testid={`chat-message-${message.id}`}
+              >
+                <span data-testid={`chat-message-text-${message.id}`}>
+                  {message.text}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="chat-input" data-testid="chat-input-row">
+            <textarea
+              className="lilith-input"
+              value={chatInput}
+              onChange={(event) => setChatInput(event.target.value)}
+              placeholder="Tell Lillith what you want to build..."
+              data-testid="chat-input"
+            />
+            <button
+              className="lilith-button"
+              onClick={sendMessage}
+              data-testid="chat-send-button"
+            >
+              Send
+            </button>
+          </div>
+        </div>
+
+        <div className="glass-panel" data-testid="avatar-panel">
+          <div className="panel-header" data-testid="avatar-panel-header">
+            <div className="panel-title" data-testid="avatar-panel-title">
+              Avatar Stage
+            </div>
+            <span className="panel-badge" data-testid="avatar-panel-badge">
+              3D sync ready
+            </span>
+          </div>
+          <div className="avatar-stage" data-testid="avatar-stage">
+            <Aperture className="avatar-icon" data-testid="avatar-icon" />
+            <div className="avatar-text" data-testid="avatar-text">
+              3D animated Lillith will render here.
+            </div>
+          </div>
+          <div className="avatar-controls" data-testid="avatar-controls">
+            <button
+              className={`lilith-button ${
+                avatarMode === "main" ? "" : "secondary"
+              }`}
+              onClick={() => setAvatarMode("main")}
+              data-testid="avatar-mode-main"
+            >
+              Main Window
+            </button>
+            <button
+              className={`lilith-button ${
+                avatarMode === "popup" ? "" : "secondary"
+              }`}
+              onClick={() => setAvatarMode("popup")}
+              data-testid="avatar-mode-popup"
+            >
+              Popup Mode
+            </button>
+          </div>
+          <div className="avatar-status" data-testid="avatar-status">
+            Current mode: {avatarMode === "main" ? "Main window" : "Popup window"}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid" data-testid="agents-grid">
+        {agentCards.map((agent) => (
+          <div
+            key={agent.id}
+            className="glass-panel agent-card"
+            data-testid={`agent-card-${agent.id}`}
+          >
+            <div className="agent-header" data-testid={`agent-header-${agent.id}`}>
+              <Orbit className="agent-icon" data-testid={`agent-icon-${agent.id}`} />
+              <span data-testid={`agent-name-${agent.id}`}>{agent.name}</span>
+            </div>
+            <div
+              className="agent-focus"
+              data-testid={`agent-focus-${agent.id}`}
+            >
+              {agent.focus}
+            </div>
+            <span
+              className={`agent-status ${agent.status.toLowerCase()}`}
+              data-testid={`agent-status-${agent.id}`}
+            >
+              {agent.status}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="section" data-testid="mini-apps-section">
+        <div className="section-header" data-testid="mini-apps-header">
+          <div className="section-title" data-testid="mini-apps-title">
+            Mini-apps bay
+          </div>
+          <div className="section-subtitle" data-testid="mini-apps-subtitle">
+            Drop-in extensions will appear here instantly.
+          </div>
+        </div>
+        <div className="grid three-column" data-testid="mini-apps-grid">
+          {miniApps.map((app) => (
+            <div
+              key={app.id}
+              className="glass-panel mini-app"
+              data-testid={`mini-app-card-${app.id}`}
+            >
+              <div className="mini-app-header" data-testid={`mini-app-header-${app.id}`}>
+                <Sparkles className="mini-app-icon" data-testid={`mini-app-icon-${app.id}`} />
+                <span data-testid={`mini-app-name-${app.id}`}>{app.name}</span>
+              </div>
+              <div
+                className="mini-app-description"
+                data-testid={`mini-app-description-${app.id}`}
+              >
+                {app.description}
+              </div>
+              <button
+                className="lilith-button secondary"
+                data-testid={`mini-app-open-${app.id}`}
+              >
+                Open mini-app
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CharacterBuilder = ({ activeProject, onAttachCharacter }) => {
+  const [form, setForm] = useState({
+    name: "",
+    role: "",
+    age: "",
+    archetype: "",
+    goal: "",
+    flaw: "",
+    voice: "",
+    appearance: "",
+    backstory: "",
+    quirks: "",
+  });
+  const [notice, setNotice] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (key, value) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const autofillCharacter = async () => {
+    setLoading(true);
+    setNotice("");
     try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+      const response = await axios.post(`${API}/characters/autofill`, {
+        ...form,
+        age: form.age ? Number(form.age) : null,
+      });
+      setForm({
+        ...response.data,
+        age: response.data.age ? String(response.data.age) : "",
+      });
+      setNotice("Lillith generated the missing traits.");
+    } catch (error) {
+      console.error(error);
+      setNotice("Unable to auto-fill right now.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const attachCharacter = () => {
+    if (!activeProject?.id) {
+      setNotice("Load a project before attaching this character.");
+      return;
+    }
+    onAttachCharacter(form);
+  };
+
+  const fieldRows = useMemo(
+    () => [
+      {
+        key: "name",
+        label: "Name",
+        placeholder: "Name your character",
+      },
+      {
+        key: "role",
+        label: "Role",
+        placeholder: "Protagonist, antagonist, mentor...",
+      },
+      {
+        key: "age",
+        label: "Age",
+        placeholder: "Age or range",
+      },
+      {
+        key: "archetype",
+        label: "Archetype",
+        placeholder: "Chosen one, rebel, detective...",
+      },
+      {
+        key: "goal",
+        label: "Core goal",
+        placeholder: "What drives them forward?",
+      },
+      {
+        key: "flaw",
+        label: "Core flaw",
+        placeholder: "What holds them back?",
+      },
+      {
+        key: "voice",
+        label: "Voice",
+        placeholder: "Accent, cadence, tone",
+      },
+      {
+        key: "appearance",
+        label: "Appearance",
+        placeholder: "Signature look",
+      },
+    ],
+    []
+  );
+
+  return (
+    <div className="page" data-testid="character-builder-page">
+      <div className="page-header" data-testid="character-builder-header">
+        <div>
+          <div className="eyebrow" data-testid="character-builder-eyebrow">
+            Character Builder
+          </div>
+          <h1 className="page-title" data-testid="character-builder-title">
+            Shape a character in minutes, let Lillith handle the rest.
+          </h1>
+        </div>
+        <div className="page-actions" data-testid="character-builder-actions">
+          <button
+            className="lilith-button"
+            onClick={autofillCharacter}
+            disabled={loading}
+            data-testid="character-autofill-button"
+          >
+            {loading ? "Generating..." : "Auto-fill missing info"}
+          </button>
+          <button
+            className="lilith-button secondary"
+            onClick={attachCharacter}
+            data-testid="character-attach-button"
+          >
+            Attach to active project
+          </button>
+        </div>
+      </div>
+
+      {notice && (
+        <div className="notice" data-testid="character-notice">
+          {notice}
+        </div>
+      )}
+
+      <div className="grid two-column" data-testid="character-builder-grid">
+        <div className="glass-panel" data-testid="character-form-panel">
+          <div className="panel-header" data-testid="character-form-header">
+            <div className="panel-title" data-testid="character-form-title">
+              Core Profile
+            </div>
+            <span className="panel-badge" data-testid="character-form-badge">
+              Auto-fill supported
+            </span>
+          </div>
+          <div className="form-grid" data-testid="character-form-grid">
+            {fieldRows.map((field) => (
+              <label
+                key={field.key}
+                className="form-field"
+                data-testid={`character-field-${field.key}`}
+              >
+                <span
+                  className="field-label"
+                  data-testid={`character-${field.key}-label`}
+                >
+                  {field.label}
+                </span>
+                <input
+                  className="lilith-input"
+                  value={form[field.key]}
+                  onChange={(event) => handleChange(field.key, event.target.value)}
+                  placeholder={field.placeholder}
+                  data-testid={`character-${field.key}-input`}
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="glass-panel" data-testid="character-detail-panel">
+          <div className="panel-header" data-testid="character-detail-header">
+            <div className="panel-title" data-testid="character-detail-title">
+              Depth + Backstory
+            </div>
+            <span className="panel-badge" data-testid="character-detail-badge">
+              Optional but powerful
+            </span>
+          </div>
+          <label className="form-field" data-testid="character-quirks-field">
+            <span
+              className="field-label"
+              data-testid="character-quirks-label"
+            >
+              Quirks & habits
+            </span>
+            <textarea
+              className="lilith-input"
+              value={form.quirks}
+              onChange={(event) => handleChange("quirks", event.target.value)}
+              placeholder="Gestures, phrases, rituals..."
+              data-testid="character-quirks-input"
+            />
+          </label>
+          <label className="form-field" data-testid="character-backstory-field">
+            <span
+              className="field-label"
+              data-testid="character-backstory-label"
+            >
+              Backstory
+            </span>
+            <textarea
+              className="lilith-input"
+              value={form.backstory}
+              onChange={(event) => handleChange("backstory", event.target.value)}
+              placeholder="Past events that shaped them"
+              data-testid="character-backstory-input"
+            />
+          </label>
+          <div
+            className="active-project-hint"
+            data-testid="character-active-project-hint"
+          >
+            Active project: {activeProject?.name || "None loaded"}
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-panel" data-testid="character-preview-panel">
+        <div className="panel-header" data-testid="character-preview-header">
+          <div className="panel-title" data-testid="character-preview-title">
+            Preview
+          </div>
+          <span className="panel-badge" data-testid="character-preview-badge">
+            Ready to save
+          </span>
+        </div>
+        <div className="preview-grid" data-testid="character-preview-grid">
+          {Object.entries(form).map(([key, value]) => (
+            <div key={key} className="preview-item" data-testid={`preview-${key}`}>
+              <span
+                className="preview-label"
+                data-testid={`preview-${key}-label`}
+              >
+                {key}
+              </span>
+              <span
+                className="preview-value"
+                data-testid={`preview-${key}-value`}
+              >
+                {value || "—"}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Projects = ({ activeProject, setActiveProject }) => {
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [form, setForm] = useState({ name: "", description: "", genre: "" });
+  const [editForm, setEditForm] = useState({
+    name: "",
+    description: "",
+    genre: "",
+    story_bible: "",
+  });
+  const [notice, setNotice] = useState("");
+
+  const loadProjects = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API}/projects`);
+      setProjects(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    helloWorldApi();
+    loadProjects();
+  }, []);
+
+  const createProject = async () => {
+    if (!form.name.trim()) {
+      setNotice("Project name is required.");
+      return;
+    }
+    try {
+      const response = await axios.post(`${API}/projects`, form);
+      setNotice("Project created and saved locally.");
+      setForm({ name: "", description: "", genre: "" });
+      await loadProjects();
+      setActiveProject(response.data);
+    } catch (error) {
+      console.error(error);
+      setNotice("Unable to save project right now.");
+    }
+  };
+
+  const loadProject = async (projectId) => {
+    try {
+      const response = await axios.get(`${API}/projects/${projectId}`);
+      setSelectedProject(response.data);
+      setEditForm({
+        name: response.data.name || "",
+        description: response.data.description || "",
+        genre: response.data.genre || "",
+        story_bible: response.data.story_bible || "",
+      });
+      setActiveProject(response.data);
+      setNotice("Project loaded.");
+    } catch (error) {
+      console.error(error);
+      setNotice("Unable to load project.");
+    }
+  };
+
+  const saveProject = async () => {
+    if (!selectedProject?.id) return;
+    try {
+      const response = await axios.put(
+        `${API}/projects/${selectedProject.id}`,
+        editForm
+      );
+      setSelectedProject(response.data);
+      setActiveProject(response.data);
+      setNotice("Project updated.");
+      await loadProjects();
+    } catch (error) {
+      console.error(error);
+      setNotice("Unable to update project.");
+    }
+  };
+
+  const deleteProject = async (projectId) => {
+    try {
+      await axios.delete(`${API}/projects/${projectId}`);
+      setNotice("Project deleted.");
+      if (selectedProject?.id === projectId) {
+        setSelectedProject(null);
+        setEditForm({ name: "", description: "", genre: "", story_bible: "" });
+      }
+      await loadProjects();
+    } catch (error) {
+      console.error(error);
+      setNotice("Unable to delete project.");
+    }
+  };
+
+  return (
+    <div className="page" data-testid="projects-page">
+      <div className="page-header" data-testid="projects-header">
+        <div>
+          <div className="eyebrow" data-testid="projects-eyebrow">
+            Project Vault
+          </div>
+          <h1 className="page-title" data-testid="projects-title">
+            Save and reload entire story worlds instantly.
+          </h1>
+        </div>
+        <div className="page-actions" data-testid="projects-actions">
+          <button
+            className="lilith-button"
+            onClick={createProject}
+            data-testid="project-create-button"
+          >
+            Save new project
+          </button>
+        </div>
+      </div>
+
+      {notice && (
+        <div className="notice" data-testid="projects-notice">
+          {notice}
+        </div>
+      )}
+
+      <div className="grid two-column" data-testid="projects-grid">
+        <div className="glass-panel" data-testid="project-create-panel">
+          <div className="panel-header" data-testid="project-create-header">
+            <div className="panel-title" data-testid="project-create-title">
+              Create project
+            </div>
+            <span className="panel-badge" data-testid="project-create-badge">
+              Local JSON storage
+            </span>
+          </div>
+          <label className="form-field" data-testid="project-name-field">
+            <span className="field-label" data-testid="project-name-label">
+              Project name
+            </span>
+            <input
+              className="lilith-input"
+              value={form.name}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, name: event.target.value }))
+              }
+              placeholder="Ex: Neon Covenant"
+              data-testid="project-name-input"
+            />
+          </label>
+          <label
+            className="form-field"
+            data-testid="project-description-field"
+          >
+            <span
+              className="field-label"
+              data-testid="project-description-label"
+            >
+              Short description
+            </span>
+            <textarea
+              className="lilith-input"
+              value={form.description}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, description: event.target.value }))
+              }
+              placeholder="High-level summary"
+              data-testid="project-description-input"
+            />
+          </label>
+          <label className="form-field" data-testid="project-genre-field">
+            <span className="field-label" data-testid="project-genre-label">
+              Genre
+            </span>
+            <input
+              className="lilith-input"
+              value={form.genre}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, genre: event.target.value }))
+              }
+              placeholder="Sci-fi, fantasy, thriller"
+              data-testid="project-genre-input"
+            />
+          </label>
+          <div className="helper" data-testid="project-create-helper">
+            Active project: {activeProject?.name || "None"}
+          </div>
+        </div>
+
+        <div className="glass-panel" data-testid="project-list-panel">
+          <div className="panel-header" data-testid="project-list-header">
+            <div className="panel-title" data-testid="project-list-title">
+              Saved projects
+            </div>
+            <span className="panel-badge" data-testid="project-list-badge">
+              {loading ? "Loading" : `${projects.length} total`}
+            </span>
+          </div>
+          <div className="project-list" data-testid="project-list">
+            {projects.length === 0 && !loading ? (
+              <div
+                className="empty-state"
+                data-testid="project-list-empty"
+              >
+                No projects saved yet.
+              </div>
+            ) : (
+              projects.map((project) => (
+                <div
+                  key={project.id}
+                  className="project-card"
+                  data-testid={`project-card-${project.id}`}
+                >
+                  <div
+                    className="project-card-title"
+                    data-testid={`project-card-title-${project.id}`}
+                  >
+                    {project.name}
+                  </div>
+                  <div
+                    className="project-card-meta"
+                    data-testid={`project-card-meta-${project.id}`}
+                  >
+                    {project.genre || "Genre pending"}
+                  </div>
+                  <div className="project-card-actions">
+                    <button
+                      className="lilith-button"
+                      onClick={() => loadProject(project.id)}
+                      data-testid={`project-card-load-${project.id}`}
+                    >
+                      Load
+                    </button>
+                    <button
+                      className="lilith-button secondary"
+                      onClick={() => deleteProject(project.id)}
+                      data-testid={`project-card-delete-${project.id}`}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-panel" data-testid="project-editor-panel">
+        <div className="panel-header" data-testid="project-editor-header">
+          <div className="panel-title" data-testid="project-editor-title">
+            Project detail
+          </div>
+          <span className="panel-badge" data-testid="project-editor-badge">
+            {selectedProject ? "Loaded" : "Select a project"}
+          </span>
+        </div>
+        <div className="grid two-column" data-testid="project-editor-grid">
+          <label className="form-field" data-testid="project-edit-name-field">
+            <span className="field-label" data-testid="project-edit-name-label">
+              Project name
+            </span>
+            <input
+              className="lilith-input"
+              value={editForm.name}
+              onChange={(event) =>
+                setEditForm((prev) => ({ ...prev, name: event.target.value }))
+              }
+              data-testid="project-edit-name-input"
+            />
+          </label>
+          <label
+            className="form-field"
+            data-testid="project-edit-genre-field"
+          >
+            <span
+              className="field-label"
+              data-testid="project-edit-genre-label"
+            >
+              Genre
+            </span>
+            <input
+              className="lilith-input"
+              value={editForm.genre}
+              onChange={(event) =>
+                setEditForm((prev) => ({ ...prev, genre: event.target.value }))
+              }
+              data-testid="project-edit-genre-input"
+            />
+          </label>
+        </div>
+        <label
+          className="form-field"
+          data-testid="project-edit-description-field"
+        >
+          <span
+            className="field-label"
+            data-testid="project-edit-description-label"
+          >
+            Description
+          </span>
+          <textarea
+            className="lilith-input"
+            value={editForm.description}
+            onChange={(event) =>
+              setEditForm((prev) => ({ ...prev, description: event.target.value }))
+            }
+            data-testid="project-edit-description-input"
+          />
+        </label>
+        <label
+          className="form-field"
+          data-testid="project-edit-story-bible-field"
+        >
+          <span
+            className="field-label"
+            data-testid="project-edit-story-bible-label"
+          >
+            Story bible
+          </span>
+          <textarea
+            className="lilith-input"
+            value={editForm.story_bible}
+            onChange={(event) =>
+              setEditForm((prev) => ({ ...prev, story_bible: event.target.value }))
+            }
+            placeholder="World rules, themes, key facts"
+            data-testid="project-edit-story-bible-input"
+          />
+        </label>
+        <div className="page-actions" data-testid="project-editor-actions">
+          <button
+            className="lilith-button"
+            onClick={saveProject}
+            data-testid="project-save-button"
+          >
+            Save changes
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const PluginBay = () => {
+  const [plugins, setPlugins] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchPlugins = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`${API}/plugins`);
+        setPlugins(response.data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPlugins();
   }, []);
 
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
+    <div className="page" data-testid="plugins-page">
+      <div className="page-header" data-testid="plugins-header">
+        <div>
+          <div className="eyebrow" data-testid="plugins-eyebrow">
+            Plugin Bay
+          </div>
+          <h1 className="page-title" data-testid="plugins-title">
+            Drop mini-apps into the plugins folder to expand Lillith.
+          </h1>
+        </div>
+        <button className="lilith-button" data-testid="plugins-refresh-button">
+          Refresh list
+        </button>
+      </div>
+
+      <div className="glass-panel" data-testid="plugins-panel">
+        <div className="panel-header" data-testid="plugins-panel-header">
+          <div className="panel-title" data-testid="plugins-panel-title">
+            Installed plugins
+          </div>
+          <span className="panel-badge" data-testid="plugins-panel-badge">
+            {loading ? "Scanning" : `${plugins.length} detected`}
+          </span>
+        </div>
+        {plugins.length === 0 && !loading ? (
+          <div className="empty-state" data-testid="plugins-empty">
+            No plugins yet. Add folders to /plugins.
+          </div>
+        ) : (
+          <div className="grid" data-testid="plugins-grid">
+            {plugins.map((plugin) => (
+              <div
+                key={plugin.name}
+                className="plugin-card"
+                data-testid={`plugin-card-${plugin.name}`}
+              >
+                <div
+                  className="plugin-title"
+                  data-testid={`plugin-title-${plugin.name}`}
+                >
+                  {plugin.name}
+                </div>
+                <div
+                  className="plugin-path"
+                  data-testid={`plugin-path-${plugin.name}`}
+                >
+                  {plugin.path}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="glass-panel" data-testid="plugins-guidance">
+        <div className="panel-header" data-testid="plugins-guidance-header">
+          <div className="panel-title" data-testid="plugins-guidance-title">
+            Plugin onboarding
+          </div>
+          <span className="panel-badge" data-testid="plugins-guidance-badge">
+            Ready for mini-apps
+          </span>
+        </div>
+        <div className="plugin-guidance" data-testid="plugins-guidance-text">
+          Each plugin folder should include a manifest.json with the mini-app name,
+          entry UI, and capabilities. Lillith will surface it automatically in the
+          Mini-apps bay.
+        </div>
+      </div>
     </div>
   );
 };
 
 function App() {
+  const [activeProject, setActiveProject] = useState(null);
+  const [onlineMode, setOnlineMode] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("lillithActiveProject");
+    if (stored) {
+      try {
+        setActiveProject(JSON.parse(stored));
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeProject) {
+      localStorage.setItem("lillithActiveProject", JSON.stringify(activeProject));
+    }
+  }, [activeProject]);
+
+  const attachCharacter = async (character) => {
+    if (!activeProject?.id) return;
+    try {
+      const response = await axios.put(
+        `${API}/projects/${activeProject.id}`,
+        {
+          character_profile: character,
+        }
+      );
+      setActiveProject(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
-    <div className="App">
+    <div className="App" data-testid="app-root">
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
+        <div className="app-shell" data-testid="app-shell">
+          <SideNav />
+          <div className="app-main" data-testid="app-main">
+            <TopBar
+              activeProject={activeProject}
+              onlineMode={onlineMode}
+              setOnlineMode={setOnlineMode}
+            />
+            <div className="app-content" data-testid="app-content">
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route
+                  path="/character-builder"
+                  element={
+                    <CharacterBuilder
+                      activeProject={activeProject}
+                      onAttachCharacter={attachCharacter}
+                    />
+                  }
+                />
+                <Route
+                  path="/projects"
+                  element={
+                    <Projects
+                      activeProject={activeProject}
+                      setActiveProject={setActiveProject}
+                    />
+                  }
+                />
+                <Route path="/plugins" element={<PluginBay />} />
+              </Routes>
+            </div>
+          </div>
+        </div>
       </BrowserRouter>
     </div>
   );
