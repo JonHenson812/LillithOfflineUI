@@ -915,6 +915,9 @@ const Projects = ({ activeProject, setActiveProject, selectedModel, modelStatus 
         body: JSON.stringify({
           project_id: selectedProject.id,
           model: selectedModel,
+          tone: storyBrief.tone || null,
+          length: storyBrief.length || null,
+          tags: storyBrief.tags || null,
         }),
       });
       if (!response.ok || !response.body) {
