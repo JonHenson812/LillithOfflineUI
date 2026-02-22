@@ -582,6 +582,10 @@ const Dashboard = () => {
   const [chatInput, setChatInput] = useState("");
   const [avatarMode, setAvatarMode] = useState("main");
   const [avatarEmotion, setAvatarEmotion] = useState("idle");
+  const [avatarEnvironment, setAvatarEnvironment] = useState("minimal-sci-fi");
+  const [avatarCharacter, setAvatarCharacter] = useState("lillith-core");
+  const [avatarFileUrl, setAvatarFileUrl] = useState("");
+  const [interactionPulse, setInteractionPulse] = useState(0);
   const [serviceHealth, setServiceHealth] = useState([]);
   const [serviceNotice, setServiceNotice] = useState("");
   const [serviceUpdated, setServiceUpdated] = useState("");
