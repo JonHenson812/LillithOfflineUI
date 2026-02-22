@@ -861,7 +861,7 @@ const Projects = ({ activeProject, setActiveProject, selectedModel, modelStatus 
               Create project
             </div>
             <span className="panel-badge" data-testid="project-create-badge">
-              Local JSON storage
+              Local SQLite storage
             </span>
           </div>
           <label className="form-field" data-testid="project-name-field">
