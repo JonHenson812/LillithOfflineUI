@@ -584,7 +584,8 @@ const Dashboard = () => {
   const [avatarEmotion, setAvatarEmotion] = useState("idle");
   const [avatarEnvironment, setAvatarEnvironment] = useState("minimal-sci-fi");
   const [avatarCharacter, setAvatarCharacter] = useState("lillith-core");
-  const [avatarFileUrl, setAvatarFileUrl] = useState("");
+  const [selectedAvatarId, setSelectedAvatarId] = useState("gothic-lillith");
+  const [uploadedAvatarUrl, setUploadedAvatarUrl] = useState("");
   const [interactionPulse, setInteractionPulse] = useState(0);
   const [serviceHealth, setServiceHealth] = useState([]);
   const [serviceNotice, setServiceNotice] = useState("");
