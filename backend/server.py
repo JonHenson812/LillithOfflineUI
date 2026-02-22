@@ -432,6 +432,119 @@ def fill_value(value: Optional[str], options: List[str], seed: str) -> str:
     return rng.choice(options)
 
 
+def extract_json_from_text(text: str) -> Optional[Dict[str, Any]]:
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    if "{" in text and "}" in text:
+        start = text.find("{")
+        end = text.rfind("}")
+        snippet = text[start : end + 1]
+        try:
+            return json.loads(snippet)
+        except json.JSONDecodeError:
+            return None
+    return None
+
+
+def safe_int(value: Any) -> Optional[int]:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def build_character_profile(request: CharacterAutofillRequest, ai_data: Optional[Dict[str, Any]] = None) -> CharacterProfile:
+    seed = request.name.strip() or "Lillith"
+    ai_data = ai_data or {}
+
+    roles = ["Protagonist", "Antagonist", "Mentor", "Rogue", "Mystic"]
+    archetypes = ["Reluctant hero", "Visionary", "Survivor", "Trickster", "Guardian"]
+    goals = [
+        "Protects a fragile secret",
+        "Seeks redemption",
+        "Wants to rebuild a lost home",
+        "Chases forbidden knowledge",
+        "Keeps the crew together",
+    ]
+    flaws = [
+        "Trusts too easily",
+        "Carries a hidden fear",
+        "Avoids vulnerability",
+        "Obsessed with control",
+        "Haunted by a past mistake",
+    ]
+    voices = [
+        "Low and measured",
+        "Quick, razor-sharp wit",
+        "Soft-spoken with intensity",
+        "Confident, rhythmic cadence",
+        "Warm but guarded",
+    ]
+    appearances = [
+        "Wears layered streetwear and tech charms",
+        "Scar across the brow, eyes that never settle",
+        "Elegant silhouette with ceremonial tattoos",
+        "Practical gear, dusted with travel marks",
+        "Minimalist style with bold accent color",
+    ]
+    backstories = [
+        "Raised in an isolated enclave guarding ancient archives.",
+        "Former agent who walked away from a corrupt regime.",
+        "Grew up as a performer hiding a secret lineage.",
+        "Survivor of a fallen city, carrying its memory forward.",
+        "Trained by a collective that values balance above all.",
+    ]
+    quirks = [
+        "Sketches symbols while thinking",
+        "Keeps a pocket recorder of ambient sounds",
+        "Collects small mechanical trinkets",
+        "Has a ritual tea routine before decisions",
+        "Talks to inanimate objects when stressed",
+    ]
+
+    name = (ai_data.get("name") or request.name or "Unnamed").strip()
+    role = ai_data.get("role") or request.role or fill_value(None, roles, seed + "role")
+    age = (
+        safe_int(ai_data.get("age"))
+        or request.age
+        or random.Random(seed + "age").randint(19, 48)
+    )
+    archetype = (
+        ai_data.get("archetype")
+        or request.archetype
+        or fill_value(None, archetypes, seed + "arch")
+    )
+    goal = ai_data.get("goal") or request.goal or fill_value(None, goals, seed + "goal")
+    flaw = ai_data.get("flaw") or request.flaw or fill_value(None, flaws, seed + "flaw")
+    voice = ai_data.get("voice") or request.voice or fill_value(None, voices, seed + "voice")
+    appearance = (
+        ai_data.get("appearance")
+        or request.appearance
+        or fill_value(None, appearances, seed + "appearance")
+    )
+    backstory = (
+        ai_data.get("backstory")
+        or request.backstory
+        or fill_value(None, backstories, seed + "backstory")
+    )
+    quirk_value = ai_data.get("quirks") or request.quirks or fill_value(None, quirks, seed + "quirks")
+
+    return CharacterProfile(
+        name=name,
+        role=role,
+        age=age,
+        archetype=archetype,
+        goal=goal,
+        flaw=flaw,
+        voice=voice,
+        appearance=appearance,
+        backstory=backstory,
+        quirks=quirk_value,
+    )
+
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
