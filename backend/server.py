@@ -287,7 +287,6 @@ async def list_projects():
 async def create_project(project: ProjectCreate):
     if not project.name.strip():
         raise HTTPException(status_code=400, detail="Project name is required")
-    projects = await read_projects()
     now = datetime.now(timezone.utc)
     new_project = Project(
         id=str(uuid.uuid4()),
@@ -299,8 +298,7 @@ async def create_project(project: ProjectCreate):
         created_at=now,
         updated_at=now,
     )
-    projects.append(new_project.model_dump())
-    await write_projects(projects)
+    await insert_project(new_project)
     return new_project
 
 
