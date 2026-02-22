@@ -43,7 +43,15 @@ const navItems = [
   },
 ];
 
-const TopBar = ({ activeProject, onlineMode, setOnlineMode }) => {
+const TopBar = ({
+  activeProject,
+  onlineMode,
+  setOnlineMode,
+  availableModels,
+  selectedModel,
+  setSelectedModel,
+  modelStatus,
+}) => {
   return (
     <div className="topbar" data-testid="topbar">
       <div className="topbar-left" data-testid="topbar-left">
@@ -61,6 +69,35 @@ const TopBar = ({ activeProject, onlineMode, setOnlineMode }) => {
         </div>
       </div>
       <div className="topbar-right" data-testid="topbar-right">
+        <div className="model-select" data-testid="model-select">
+          <span className="label" data-testid="model-select-label">
+            Model
+          </span>
+          {modelStatus === "ready" ? (
+            <select
+              className="lilith-select"
+              value={selectedModel}
+              onChange={(event) => setSelectedModel(event.target.value)}
+              data-testid="model-select-input"
+            >
+              {availableModels.map((model) => (
+                <option
+                  key={model.id}
+                  value={model.id}
+                  data-testid={`model-option-${model.id}`}
+                >
+                  {model.id}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="model-status" data-testid="model-status">
+              {modelStatus === "loading"
+                ? "Scanning models..."
+                : "LM Studio offline"}
+            </span>
+          )}
+        </div>
         <div className="active-project" data-testid="active-project">
           <span className="label" data-testid="active-project-label">
             Active Project
