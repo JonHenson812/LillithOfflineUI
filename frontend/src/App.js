@@ -606,13 +606,7 @@ const Dashboard = () => {
             </span>
           </div>
           <div className="avatar-stage" data-testid="avatar-stage">
-            <Canvas
-              className="avatar-canvas"
-              data-testid="avatar-canvas"
-              camera={{ position: [0, 0, 4], fov: 45 }}
-            >
-              <AvatarScene emotion={avatarEmotion} />
-            </Canvas>
+            <AvatarCanvas emotion={avatarEmotion} />
             <div className="avatar-overlay" data-testid="avatar-overlay">
               <span data-testid="avatar-emotion-label">
                 Emotion: {avatarEmotion}
