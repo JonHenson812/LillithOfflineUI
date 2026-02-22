@@ -681,6 +681,43 @@ const Dashboard = () => {
     },
   ];
 
+  const environmentOptions = [
+    { id: "minimal-sci-fi", label: "Minimal Sci-Fi" },
+    { id: "cozy-library", label: "Cozy Library" },
+    { id: "futuristic-lab", label: "Futuristic Lab" },
+  ];
+
+  const characterOptions = [
+    { id: "lillith-core", label: "Lillith Core" },
+    { id: "archivist", label: "Archivist" },
+    { id: "sentinel", label: "Sentinel" },
+  ];
+
+  useEffect(() = {
+    return () = {
+      if (avatarFileUrl) {
+        URL.revokeObjectURL(avatarFileUrl);
+      }
+    };
+  }, [avatarFileUrl]);
+
+  const handleAvatarFileChange = (event) = {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (avatarFileUrl) {
+      URL.revokeObjectURL(avatarFileUrl);
+    }
+    const url = URL.createObjectURL(file);
+    setAvatarFileUrl(url);
+  };
+
+  const clearAvatarFile = () = {
+    if (avatarFileUrl) {
+      URL.revokeObjectURL(avatarFileUrl);
+    }
+    setAvatarFileUrl("");
+  };
+
   const sendMessage = () => {
     if (!chatInput.trim()) return;
     const userMessage = {
