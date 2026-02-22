@@ -312,16 +312,14 @@ async def get_project(project_id: str):
 
 @api_router.put("/projects/{project_id}", response_model=Project)
 async def update_project(project_id: str, update: ProjectUpdate):
-    projects = await read_projects()
+    project = await fetch_project_by_id(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
     update_data = update.model_dump(exclude_unset=True)
-    for index, project in enumerate(projects):
-        if project["id"] == project_id:
-            project.update(update_data)
-            project["updated_at"] = datetime.now(timezone.utc)
-            projects[index] = project
-            await write_projects(projects)
-            return project
-    raise HTTPException(status_code=404, detail="Project not found")
+    project.update(update_data)
+    project["updated_at"] = datetime.now(timezone.utc).isoformat()
+    updated_project = await persist_project(project)
+    return updated_project
 
 
 @api_router.delete("/projects/{project_id}")
