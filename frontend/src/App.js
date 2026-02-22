@@ -1078,7 +1078,7 @@ const Projects = ({ activeProject, setActiveProject, selectedModel, modelStatus 
             {isGenerating ? "Generating..." : "Generate story bible"}
           </button>
           <div className="helper" data-testid="project-model-hint">
-            Model: {modelStatus === "ready" ? selectedModel || "Select a model" : "LM Studio offline"}
+            Model: {modelStatus === "ready" ? selectedModel || "Select a model" : modelStatus === "empty" ? "No models found" : "LM Studio offline"}
           </div>
         </div>
       </div>
