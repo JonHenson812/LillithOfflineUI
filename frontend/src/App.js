@@ -1549,21 +1549,22 @@ function App() {
     }
   }, []);
 
+  const fetchModels = async () => {
+    setModelStatus("loading");
+    try {
+      const response = await axios.get(`${API}/ai/models`);
+      const models = response.data.models || [];
+      setAvailableModels(models);
+      setSelectedModel((prev) => prev || models[0]?.id || "");
+      setModelStatus(models.length ? "ready" : "empty");
+    } catch (error) {
+      console.error(error);
+      setModelStatus("offline");
+    }
+  };
+
   useEffect(() => {
-    const loadModels = async () => {
-      setModelStatus("loading");
-      try {
-        const response = await axios.get(`${API}/ai/models`);
-        const models = response.data.models || [];
-        setAvailableModels(models);
-        setSelectedModel((prev) => prev || models[0]?.id || "");
-        setModelStatus(models.length ? "ready" : "empty");
-      } catch (error) {
-        console.error(error);
-        setModelStatus("offline");
-      }
-    };
-    loadModels();
+    fetchModels();
   }, []);
 
   useEffect(() => {
