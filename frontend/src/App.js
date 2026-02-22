@@ -2754,6 +2754,7 @@ function App() {
                     />
                   }
                 />
+                <Route path="/visual-studio" element={<VisualStudio />} />
                 <Route path="/plugins" element={<PluginBay />} />
                 <Route path="/services" element={<Services />} />
               </Routes>
