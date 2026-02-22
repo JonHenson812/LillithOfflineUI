@@ -1277,10 +1277,12 @@ const Services = () => {
     setNotice("");
     try {
       const response = await axios.post(`${API}/services/start-all`);
-      const started = response.data.results?.filter(
-        (item) => item.status === "started"
-      ).length;
-      setNotice(`Started ${started || 0} services.`);
+      const results = response.data.results || [];
+      const started = results.filter((item) => item.status === "started").length;
+      const errored = results.filter((item) => item.status === "error").length;
+      setNotice(
+        `Started ${started || 0} services${errored ? ", with some errors." : "."}`
+      );
       await loadServices();
     } catch (error) {
       console.error(error);
@@ -1292,10 +1294,12 @@ const Services = () => {
     setNotice("");
     try {
       const response = await axios.post(`${API}/services/stop-all`);
-      const stopped = response.data.results?.filter(
-        (item) => item.status === "stopped"
-      ).length;
-      setNotice(`Stopped ${stopped || 0} services.`);
+      const results = response.data.results || [];
+      const stopped = results.filter((item) => item.status === "stopped").length;
+      const errored = results.filter((item) => item.status === "error").length;
+      setNotice(
+        `Stopped ${stopped || 0} services${errored ? ", with some errors." : "."}`
+      );
       await loadServices();
     } catch (error) {
       console.error(error);
@@ -1334,8 +1338,12 @@ const Services = () => {
   const startService = async (service) => {
     setNotice("");
     try {
-      await axios.post(`${API}/services/${service.id}/start`);
-      setNotice(`${service.name} started.`);
+      const response = await axios.post(`${API}/services/${service.id}/start`);
+      if (response.data.status === "error") {
+        setNotice(response.data.detail || `Unable to start ${service.name}.`);
+      } else {
+        setNotice(`${service.name} started.`);
+      }
       await loadServices();
     } catch (error) {
       console.error(error);
@@ -1346,8 +1354,12 @@ const Services = () => {
   const stopService = async (service) => {
     setNotice("");
     try {
-      await axios.post(`${API}/services/${service.id}/stop`);
-      setNotice(`${service.name} stopped.`);
+      const response = await axios.post(`${API}/services/${service.id}/stop`);
+      if (response.data.status === "error") {
+        setNotice(response.data.detail || `Unable to stop ${service.name}.`);
+      } else {
+        setNotice(`${service.name} stopped.`);
+      }
       await loadServices();
     } catch (error) {
       console.error(error);
