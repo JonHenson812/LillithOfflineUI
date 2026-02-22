@@ -1008,7 +1008,7 @@ async def run_comfyui(request: ComfyUiRequest):
             for _ in range(20):
                 await asyncio.sleep(1)
                 history_response = await client.get(f"{base_url}/history/{prompt_id}")
-                if history_response.status_code = 200:
+                if history_response.status_code != 200:
                     continue
                 history = history_response.json().get(prompt_id)
                 if not history:
