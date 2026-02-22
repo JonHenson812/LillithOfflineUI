@@ -375,7 +375,7 @@ const AvatarCanvas = ({
     groupRef.current = group;
     scene.add(group);
 
-    const env = environments[environment] || environments["minimal-sci-fi"];
+    const env = environments["minimal-sci-fi"];
     scene.background = new THREE.Color(env.background);
 
     const floorMaterial = new THREE.MeshStandardMaterial({
