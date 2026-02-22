@@ -580,10 +580,14 @@ const CharacterBuilder = ({
   const autofillCharacter = async () => {
     setLoading(true);
     setNotice("");
+    if (modelStatus !== "ready" || !selectedModel) {
+      setNotice("LM Studio is offline — using fallback generator.");
+    }
     try {
       const response = await axios.post(`${API}/characters/autofill`, {
         ...form,
         age: form.age ? Number(form.age) : null,
+        model: modelStatus === "ready" ? selectedModel : null,
       });
       setForm({
         ...response.data,
