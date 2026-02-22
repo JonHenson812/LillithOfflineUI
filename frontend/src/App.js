@@ -840,7 +840,7 @@ const Dashboard = () => {
           <div className="avatar-stage" data-testid="avatar-stage">
             <AvatarCanvas
               emotion={avatarEmotion}
-              avatarUrl={avatarFileUrl}
+              avatarUrl={resolvedAvatarUrl}
               environment={avatarEnvironment}
               character={avatarCharacter}
               interactionPulse={interactionPulse}
