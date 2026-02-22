@@ -1868,6 +1868,281 @@ const Projects = ({ activeProject, setActiveProject, selectedModel, modelStatus 
   );
 };
 
+const VisualStudio = () => {
+  const [sdForm, setSdForm] = useState({
+    prompt: "",
+    negative_prompt: "",
+    steps: 25,
+    cfg_scale: 7,
+    width: 768,
+    height: 1024,
+    seed: "",
+  });
+  const [sdImages, setSdImages] = useState([]);
+  const [sdNotice, setSdNotice] = useState("");
+  const [sdLoading, setSdLoading] = useState(false);
+
+  const [comfyWorkflow, setComfyWorkflow] = useState("");
+  const [comfyImages, setComfyImages] = useState([]);
+  const [comfyNotice, setComfyNotice] = useState("");
+  const [comfyLoading, setComfyLoading] = useState(false);
+
+  const runStableDiffusion = async () => {
+    if (!sdForm.prompt.trim()) {
+      setSdNotice("Add a prompt before generating.");
+      return;
+    }
+    setSdLoading(true);
+    setSdNotice("");
+    try {
+      const payload = {
+        prompt: sdForm.prompt,
+        negative_prompt: sdForm.negative_prompt || null,
+        steps: Number(sdForm.steps) || 25,
+        cfg_scale: Number(sdForm.cfg_scale) || 7,
+        width: Number(sdForm.width) || 768,
+        height: Number(sdForm.height) || 1024,
+        seed: sdForm.seed !== "" ? Number(sdForm.seed) : null,
+      };
+      const response = await axios.post(`${API}/ai/sd/txt2img`, payload);
+      const images = response.data.images || [];
+      setSdImages(images);
+      setSdNotice(images.length ? "Images generated." : "No images returned.");
+    } catch (error) {
+      console.error(error);
+      setSdNotice("Stable Diffusion is unavailable.");
+    } finally {
+      setSdLoading(false);
+    }
+  };
+
+  const runComfyUi = async () => {
+    if (!comfyWorkflow.trim()) {
+      setComfyNotice("Paste a ComfyUI workflow JSON first.");
+      return;
+    }
+    setComfyLoading(true);
+    setComfyNotice("");
+    try {
+      const workflow = JSON.parse(comfyWorkflow);
+      const response = await axios.post(`${API}/ai/comfyui/run`, { workflow });
+      setComfyImages(response.data.images || []);
+      setComfyNotice(
+        response.data.images?.length
+          ? "ComfyUI outputs loaded."
+          : "Workflow queued. Open ComfyUI to monitor."
+      );
+    } catch (error) {
+      console.error(error);
+      setComfyNotice("Unable to run ComfyUI workflow.");
+    } finally {
+      setComfyLoading(false);
+    }
+  };
+
+  return (
+    <div className="page" data-testid="visual-studio-page">
+      <div className="page-header" data-testid="visual-studio-header">
+        <div>
+          <div className="eyebrow" data-testid="visual-studio-eyebrow">
+            Visual Studio
+          </div>
+          <h1 className="page-title" data-testid="visual-studio-title">
+            Generate illustrations and video concepts locally.
+          </h1>
+        </div>
+      </div>
+
+      <div className="grid two-column" data-testid="visual-studio-grid">
+        <div className="glass-panel" data-testid="sd-panel">
+          <div className="panel-header" data-testid="sd-header">
+            <div className="panel-title" data-testid="sd-title">
+              Stable Diffusion WebUI
+            </div>
+            <span className="panel-badge" data-testid="sd-badge">
+              txt2img
+            </span>
+          </div>
+          {sdNotice && (
+            <div className="notice" data-testid="sd-notice">
+              {sdNotice}
+            </div>
+          )}
+          <label className="form-field" data-testid="sd-prompt-field">
+            <span className="field-label" data-testid="sd-prompt-label">
+              Prompt
+            </span>
+            <textarea
+              className="lilith-input"
+              value={sdForm.prompt}
+              onChange={(event) =>
+                setSdForm((prev) => ({ ...prev, prompt: event.target.value }))
+              }
+              placeholder="Describe the illustration"
+              data-testid="sd-prompt-input"
+            />
+          </label>
+          <label className="form-field" data-testid="sd-negative-field">
+            <span className="field-label" data-testid="sd-negative-label">
+              Negative prompt
+            </span>
+            <textarea
+              className="lilith-input"
+              value={sdForm.negative_prompt}
+              onChange={(event) =>
+                setSdForm((prev) => ({ ...prev, negative_prompt: event.target.value }))
+              }
+              placeholder="What to avoid"
+              data-testid="sd-negative-input"
+            />
+          </label>
+          <div className="form-grid" data-testid="sd-settings-grid">
+            <label className="form-field" data-testid="sd-steps-field">
+              <span className="field-label" data-testid="sd-steps-label">
+                Steps
+              </span>
+              <input
+                className="lilith-input"
+                type="number"
+                value={sdForm.steps}
+                onChange={(event) =>
+                  setSdForm((prev) => ({ ...prev, steps: event.target.value }))
+                }
+                data-testid="sd-steps-input"
+              />
+            </label>
+            <label className="form-field" data-testid="sd-cfg-field">
+              <span className="field-label" data-testid="sd-cfg-label">
+                CFG Scale
+              </span>
+              <input
+                className="lilith-input"
+                type="number"
+                value={sdForm.cfg_scale}
+                onChange={(event) =>
+                  setSdForm((prev) => ({ ...prev, cfg_scale: event.target.value }))
+                }
+                data-testid="sd-cfg-input"
+              />
+            </label>
+            <label className="form-field" data-testid="sd-width-field">
+              <span className="field-label" data-testid="sd-width-label">
+                Width
+              </span>
+              <input
+                className="lilith-input"
+                type="number"
+                value={sdForm.width}
+                onChange={(event) =>
+                  setSdForm((prev) => ({ ...prev, width: event.target.value }))
+                }
+                data-testid="sd-width-input"
+              />
+            </label>
+            <label className="form-field" data-testid="sd-height-field">
+              <span className="field-label" data-testid="sd-height-label">
+                Height
+              </span>
+              <input
+                className="lilith-input"
+                type="number"
+                value={sdForm.height}
+                onChange={(event) =>
+                  setSdForm((prev) => ({ ...prev, height: event.target.value }))
+                }
+                data-testid="sd-height-input"
+              />
+            </label>
+            <label className="form-field" data-testid="sd-seed-field">
+              <span className="field-label" data-testid="sd-seed-label">
+                Seed (optional)
+              </span>
+              <input
+                className="lilith-input"
+                type="number"
+                value={sdForm.seed}
+                onChange={(event) =>
+                  setSdForm((prev) => ({ ...prev, seed: event.target.value }))
+                }
+                data-testid="sd-seed-input"
+              />
+            </label>
+          </div>
+          <button
+            className="lilith-button"
+            onClick={runStableDiffusion}
+            disabled={sdLoading}
+            data-testid="sd-generate-button"
+          >
+            {sdLoading ? "Generating..." : "Generate image"}
+          </button>
+          <div className="image-grid" data-testid="sd-image-grid">
+            {sdImages.map((image, index) => (
+              <img
+                key={`${index}-sd`}
+                src={`data:image/png;base64,${image}`}
+                alt={`Stable Diffusion output ${index + 1}`}
+                className="generated-image"
+                data-testid={`sd-image-${index}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="glass-panel" data-testid="comfy-panel">
+          <div className="panel-header" data-testid="comfy-header">
+            <div className="panel-title" data-testid="comfy-title">
+              ComfyUI Workflow
+            </div>
+            <span className="panel-badge" data-testid="comfy-badge">
+              workflow JSON
+            </span>
+          </div>
+          {comfyNotice && (
+            <div className="notice" data-testid="comfy-notice">
+              {comfyNotice}
+            </div>
+          )}
+          <label className="form-field" data-testid="comfy-workflow-field">
+            <span className="field-label" data-testid="comfy-workflow-label">
+              Workflow JSON
+            </span>
+            <textarea
+              className="lilith-input"
+              value={comfyWorkflow}
+              onChange={(event) => setComfyWorkflow(event.target.value)}
+              placeholder="Paste ComfyUI workflow export JSON here"
+              data-testid="comfy-workflow-input"
+            />
+          </label>
+          <div className="helper" data-testid="comfy-helper">
+            Export your workflow from ComfyUI (Queue -> Export) and paste it here.
+          </div>
+          <button
+            className="lilith-button"
+            onClick={runComfyUi}
+            disabled={comfyLoading}
+            data-testid="comfy-run-button"
+          >
+            {comfyLoading ? "Running..." : "Run workflow"}
+          </button>
+          <div className="image-grid" data-testid="comfy-image-grid">
+            {comfyImages.map((image, index) => (
+              <img
+                key={`${index}-comfy`}
+                src={image.url}
+                alt={`ComfyUI output ${index + 1}`}
+                className="generated-image"
+                data-testid={`comfy-image-${index}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Services = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
