@@ -1606,6 +1606,7 @@ function App() {
               modelStatus={modelStatus}
               onRefreshModels={fetchModels}
             />
+            <MenuBar />
             <div className="app-content" data-testid="app-content">
               <Routes>
                 <Route path="/" element={<Dashboard />} />
