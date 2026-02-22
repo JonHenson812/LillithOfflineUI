@@ -1179,6 +1179,58 @@ const Projects = ({ activeProject, setActiveProject, selectedModel, modelStatus 
             data-testid="project-edit-description-input"
           />
         </label>
+        <div className="story-bible-briefing" data-testid="story-bible-briefing">
+          <div className="section-title" data-testid="story-bible-briefing-title">
+            Story bible briefing
+          </div>
+          <div className="form-grid" data-testid="story-bible-briefing-grid">
+            <label className="form-field" data-testid="story-bible-tone-field">
+              <span className="field-label" data-testid="story-bible-tone-label">
+                Tone
+              </span>
+              <input
+                className="lilith-input"
+                value={storyBrief.tone}
+                onChange={(event) =>
+                  setStoryBrief((prev) => ({ ...prev, tone: event.target.value }))
+                }
+                placeholder="Cinematic, cozy, grimdark..."
+                data-testid="story-bible-tone-input"
+              />
+            </label>
+            <label className="form-field" data-testid="story-bible-length-field">
+              <span className="field-label" data-testid="story-bible-length-label">
+                Target length
+              </span>
+              <input
+                className="lilith-input"
+                value={storyBrief.length}
+                onChange={(event) =>
+                  setStoryBrief((prev) => ({ ...prev, length: event.target.value }))
+                }
+                placeholder="1-2 pages, 800 words..."
+                data-testid="story-bible-length-input"
+              />
+            </label>
+            <label className="form-field" data-testid="story-bible-tags-field">
+              <span className="field-label" data-testid="story-bible-tags-label">
+                Focus tags
+              </span>
+              <input
+                className="lilith-input"
+                value={storyBrief.tags}
+                onChange={(event) =>
+                  setStoryBrief((prev) => ({ ...prev, tags: event.target.value }))
+                }
+                placeholder="factions, politics, romance..."
+                data-testid="story-bible-tags-input"
+              />
+            </label>
+          </div>
+          <div className="helper" data-testid="story-bible-briefing-helper">
+            These notes guide the story bible generator.
+          </div>
+        </div>
         <label
           className="form-field"
           data-testid="project-edit-story-bible-field"
