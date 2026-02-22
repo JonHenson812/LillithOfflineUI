@@ -819,7 +819,13 @@ const Dashboard = () => {
             </span>
           </div>
           <div className="avatar-stage" data-testid="avatar-stage">
-            <AvatarCanvas emotion={avatarEmotion} />
+            <AvatarCanvas
+              emotion={avatarEmotion}
+              avatarUrl={avatarFileUrl}
+              environment={avatarEnvironment}
+              character={avatarCharacter}
+              interactionPulse={interactionPulse}
+            />
             <div className="avatar-overlay" data-testid="avatar-overlay">
               <span data-testid="avatar-emotion-label">
                 Emotion: {avatarEmotion}
