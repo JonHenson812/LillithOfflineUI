@@ -1477,6 +1477,32 @@ const Services = () => {
           </div>
         ))}
       </div>
+
+      <div className="glass-panel" data-testid="services-troubleshoot">
+        <div className="panel-header" data-testid="services-troubleshoot-header">
+          <div className="panel-title" data-testid="services-troubleshoot-title">
+            Troubleshooting quick fixes
+          </div>
+          <span className="panel-badge" data-testid="services-troubleshoot-badge">
+            Local install tips
+          </span>
+        </div>
+        <ul className="note-list" data-testid="services-troubleshoot-list">
+          <li data-testid="services-troubleshoot-httpx">
+            If Stable Diffusion WebUI fails with a "socket_options" error, update the
+            WebUI venv packages: "pip install -U httpx httpcore" inside the SD
+            "venv", then relaunch.
+          </li>
+          <li data-testid="services-troubleshoot-lm">
+            For remote LM Studio, make sure the base URL points to the machine running
+            the server (example: http://100.77.24.8:1234).
+          </li>
+          <li data-testid="services-troubleshoot-comfy">
+            ComfyUI health checks default to "/system_stats"; adjust if you use
+            a custom port.
+          </li>
+        </ul>
+      </div>
     </div>
   );
 };
