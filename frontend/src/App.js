@@ -385,6 +385,14 @@ const Dashboard = () => {
     }
   };
 
+  const openServicePanel = (service) => {
+    if (!service.base_url) {
+      setServiceNotice("Set a base URL before opening the service.");
+      return;
+    }
+    window.open(service.base_url, "_blank", "noopener,noreferrer");
+  };
+
   const agentCards = [
     {
       id: "plot-architect",
