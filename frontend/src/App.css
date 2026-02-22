@@ -431,6 +431,21 @@
   backdrop-filter: blur(6px);
 }
 
+.avatar-customize {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.avatar-upload-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .avatar-icon {
   width: 48px;
   height: 48px;
