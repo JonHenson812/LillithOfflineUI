@@ -646,6 +646,24 @@
   color: var(--lilith-muted);
 }
 
+.note-list {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--lilith-muted);
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.note-list code {
+  background: rgba(83, 211, 255, 0.12);
+  color: var(--lilith-accent);
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+}
+
 .empty-state {
   padding: 20px;
   text-align: center;
