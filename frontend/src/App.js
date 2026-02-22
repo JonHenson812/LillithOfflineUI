@@ -289,6 +289,59 @@ const SideNav = () => {
 };
 
 
+const AvatarScene = ({ emotion }) => {
+  const meshRef = useRef(null);
+  const ringRef = useRef(null);
+  const colors = useMemo(
+    () => ({
+      idle: "#53d3ff",
+      happy: "#5dffb3",
+      curious: "#ffbf63",
+      concerned: "#ff7a7a",
+    }),
+    []
+  );
+  const color = colors[emotion] || colors.idle;
+
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    if (meshRef.current) {
+      meshRef.current.rotation.y = t * 0.4;
+      meshRef.current.rotation.x = Math.sin(t / 2) * 0.1;
+      meshRef.current.position.y = Math.sin(t) * 0.15;
+    }
+    if (ringRef.current) {
+      ringRef.current.rotation.z = t * 0.2;
+    }
+  });
+
+  return (
+    group
+      ambientLight intensity={0.6} /
+      pointLight position={[4, 4, 4]} intensity={1.2} /
+      mesh ref={meshRef}
+        sphereGeometry args={[1.2, 64, 64]} /
+        meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.4}
+          roughness={0.25}
+          metalness={0.6}
+        /
+      /mesh
+      mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}
+        torusGeometry args={[1.8, 0.05, 16, 100]} /
+        meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.6}
+          roughness={0.4}
+        /
+      /mesh
+    /group
+  );
+};
+
 const Dashboard = () => {
   const [messages, setMessages] = useState([
     {
