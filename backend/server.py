@@ -27,9 +27,9 @@ db = client[os.environ['DB_NAME']]
 
 # Local storage paths
 DATA_DIR = ROOT_DIR / "data"
-PROJECTS_FILE = DATA_DIR / "projects.json"
+DB_PATH = DATA_DIR / "lillith.sqlite"
 PLUGINS_DIR = ROOT_DIR.parent / "plugins"
-FILE_LOCK = asyncio.Lock()
+LM_STUDIO_URL = os.environ["LM_STUDIO_URL"]
 
 
 def ensure_storage():
