@@ -128,6 +128,12 @@ class CharacterProfile(BaseModel):
     quirks: str
 
 
+class StoryBibleRequest(BaseModel):
+    project_id: str
+    model: str
+    tone: Optional[str] = None
+
+
 class PluginInfo(BaseModel):
     name: str
     path: str
