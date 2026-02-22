@@ -584,7 +584,7 @@ async def autofill_character(request: CharacterAutofillRequest):
 async def list_models():
     lm_base = normalize_lm_url(await get_lm_studio_base())
     try:
-        async with httpx.AsyncClient(timeout=20) as client:
+        async with httpx.AsyncClient(timeout=5) as client:
             response = await client.get(f"{lm_base}/models")
             response.raise_for_status()
             payload = response.json()
