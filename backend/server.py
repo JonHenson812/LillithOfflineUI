@@ -552,6 +552,13 @@ async def stop_services_bulk() -> Dict[str, Any]:
     return {"results": results}
 
 
+async def get_service_base_url(service_id: str) -> str:
+    service = await fetch_service(service_id)
+    if not service or not service.get("base_url"):
+        raise HTTPException(status_code=404, detail="Service base URL not configured")
+    return service["base_url"].rstrip("/")
+
+
 def fill_value(value: Optional[str], options: List[str], seed: str) -> str:
     if value:
         return value
