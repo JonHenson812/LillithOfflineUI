@@ -692,7 +692,10 @@ async def start_service(service_id: str):
     command = service.get("start_command")
     if not command:
         raise HTTPException(status_code=400, detail="No start command configured")
-    pid = launch_command(command)
+    try:
+        pid = launch_command(command)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Failed to start service") from exc
     await update_service_pid(service_id, pid)
     return {"status": "started", "pid": pid}
 
@@ -704,13 +707,19 @@ async def stop_service(service_id: str):
         raise HTTPException(status_code=404, detail="Service not found")
     command = service.get("stop_command")
     if command:
-        launch_command(command)
+        try:
+            launch_command(command)
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail="Failed to stop service") from exc
         await update_service_pid(service_id, None)
         return {"status": "stopped"}
     pid = service.get("last_pid")
     if not pid:
         raise HTTPException(status_code=400, detail="No running process found")
-    stop_process(pid)
+    try:
+        stop_process(pid)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Failed to stop service") from exc
     await update_service_pid(service_id, None)
     return {"status": "stopped"}
 
