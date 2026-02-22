@@ -1062,10 +1062,22 @@ const Projects = ({ activeProject, setActiveProject, selectedModel, modelStatus 
           <button
             className="lilith-button"
             onClick={saveProject}
+            disabled={isGenerating}
             data-testid="project-save-button"
           >
             Save changes
           </button>
+          <button
+            className="lilith-button secondary"
+            onClick={generateStoryBible}
+            disabled={isGenerating}
+            data-testid="project-generate-story-bible"
+          >
+            {isGenerating ? "Generating..." : "Generate story bible"}
+          </button>
+          <div className="helper" data-testid="project-model-hint">
+            Model: {modelStatus === "ready" ? selectedModel || "Select a model" : "LM Studio offline"}
+          </div>
         </div>
       </div>
     </div>
