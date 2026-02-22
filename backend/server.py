@@ -133,36 +133,103 @@ class PluginInfo(BaseModel):
     path: str
 
 
-def serialize_project(project: Dict[str, Any]) -> Dict[str, Any]:
-    data = dict(project)
-    for key in ["created_at", "updated_at"]:
-        value = data.get(key)
-        if isinstance(value, datetime):
-            data[key] = value.isoformat()
+def row_to_project(row: aiosqlite.Row) -> Dict[str, Any]:
+    data = dict(row)
+    if data.get("character_profile"):
+        data["character_profile"] = json.loads(data["character_profile"])
     return data
 
 
-def deserialize_project(project: Dict[str, Any]) -> Dict[str, Any]:
-    data = dict(project)
-    for key in ["created_at", "updated_at"]:
-        if isinstance(data.get(key), str):
-            data[key] = datetime.fromisoformat(data[key])
-    return data
+async def fetch_projects() -> List[Dict[str, Any]]:
+    await init_db()
+    async with aiosqlite.connect(DB_PATH) as conn:
+        conn.row_factory = aiosqlite.Row
+        cursor = await conn.execute(
+            "SELECT * FROM projects ORDER BY created_at DESC"
+        )
+        rows = await cursor.fetchall()
+    return [row_to_project(row) for row in rows]
 
 
-async def read_projects() -> List[Dict[str, Any]]:
-    ensure_storage()
-    async with FILE_LOCK:
-        raw = PROJECTS_FILE.read_text(encoding="utf-8") or "[]"
-        projects = json.loads(raw)
-    return [deserialize_project(project) for project in projects]
+async def fetch_project_by_id(project_id: str) -> Optional[Dict[str, Any]]:
+    await init_db()
+    async with aiosqlite.connect(DB_PATH) as conn:
+        conn.row_factory = aiosqlite.Row
+        cursor = await conn.execute(
+            "SELECT * FROM projects WHERE id = ?",
+            (project_id,),
+        )
+        row = await cursor.fetchone()
+    if row:
+        return row_to_project(row)
+    return None
 
 
-async def write_projects(projects: List[Dict[str, Any]]) -> None:
-    ensure_storage()
-    serializable = [serialize_project(project) for project in projects]
-    async with FILE_LOCK:
-        PROJECTS_FILE.write_text(json.dumps(serializable, indent=2), encoding="utf-8")
+async def insert_project(project: Project) -> None:
+    await init_db()
+    async with aiosqlite.connect(DB_PATH) as conn:
+        await conn.execute(
+            """
+            INSERT INTO projects (id, name, description, genre, story_bible, character_profile, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                project.id,
+                project.name,
+                project.description,
+                project.genre,
+                project.story_bible,
+                json.dumps(project.character_profile) if project.character_profile else None,
+                project.created_at.isoformat(),
+                project.updated_at.isoformat(),
+            ),
+        )
+        await conn.commit()
+
+
+async def persist_project(project: Dict[str, Any]) -> Dict[str, Any]:
+    await init_db()
+    async with aiosqlite.connect(DB_PATH) as conn:
+        await conn.execute(
+            """
+            UPDATE projects
+            SET name = ?, description = ?, genre = ?, story_bible = ?, character_profile = ?, updated_at = ?
+            WHERE id = ?
+            """,
+            (
+                project["name"],
+                project.get("description"),
+                project.get("genre"),
+                project.get("story_bible"),
+                json.dumps(project.get("character_profile"))
+                if project.get("character_profile")
+                else None,
+                project["updated_at"],
+                project["id"],
+            ),
+        )
+        await conn.commit()
+    return project
+
+
+async def remove_project(project_id: str) -> bool:
+    await init_db()
+    async with aiosqlite.connect(DB_PATH) as conn:
+        cursor = await conn.execute(
+            "DELETE FROM projects WHERE id = ?",
+            (project_id,),
+        )
+        await conn.commit()
+        return cursor.rowcount > 0
+
+
+async def update_project_story_bible(project_id: str, story_bible: str) -> None:
+    project = await fetch_project_by_id(project_id)
+    if not project:
+        return
+    project["story_bible"] = story_bible
+    project["updated_at"] = datetime.now(timezone.utc).isoformat()
+    await persist_project(project)
 
 
 def fill_value(value: Optional[str], options: List[str], seed: str) -> str:
