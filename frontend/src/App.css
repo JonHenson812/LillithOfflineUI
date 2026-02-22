@@ -226,6 +226,24 @@
   color: var(--lilith-glow);
 }
 
+.icon-button {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: var(--lilith-text);
+  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.button-icon {
+  width: 16px;
+  height: 16px;
+}
+
 .app-content {
   padding: 32px;
   display: flex;
