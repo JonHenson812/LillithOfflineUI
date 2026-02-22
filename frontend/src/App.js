@@ -1227,6 +1227,36 @@ const Services = () => {
     loadServices();
   }, []);
 
+  const startAllServices = async () => {
+    setNotice("");
+    try {
+      const response = await axios.post(`${API}/services/start-all`);
+      const started = response.data.results?.filter(
+        (item) => item.status === "started"
+      ).length;
+      setNotice(`Started ${started || 0} services.`);
+      await loadServices();
+    } catch (error) {
+      console.error(error);
+      setNotice("Unable to start all services.");
+    }
+  };
+
+  const stopAllServices = async () => {
+    setNotice("");
+    try {
+      const response = await axios.post(`${API}/services/stop-all`);
+      const stopped = response.data.results?.filter(
+        (item) => item.status === "stopped"
+      ).length;
+      setNotice(`Stopped ${stopped || 0} services.`);
+      await loadServices();
+    } catch (error) {
+      console.error(error);
+      setNotice("Unable to stop all services.");
+    }
+  };
+
   const updateField = (serviceId, field, value) => {
     setServices((prev) =>
       prev.map((service) =>
