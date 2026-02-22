@@ -1704,6 +1704,8 @@ function App() {
                     <CharacterBuilder
                       activeProject={activeProject}
                       onAttachCharacter={attachCharacter}
+                      selectedModel={selectedModel}
+                      modelStatus={modelStatus}
                     />
                   }
                 />
