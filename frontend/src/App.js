@@ -62,6 +62,7 @@ const TopBar = ({
   selectedModel,
   setSelectedModel,
   modelStatus,
+  onRefreshModels,
 }) => {
   return (
     <div className="topbar" data-testid="topbar">
