@@ -1407,6 +1407,68 @@ const Services = () => {
         </div>
       )}
 
+      <div className="glass-panel" data-testid="services-preferences">
+        <div className="panel-header" data-testid="services-preferences-header">
+          <div className="panel-title" data-testid="services-preferences-title">
+            Service preferences
+          </div>
+          <span className="panel-badge" data-testid="services-preferences-badge">
+            Local automation
+          </span>
+        </div>
+        <div className="service-preferences" data-testid="services-preferences-body">
+          <div className="toggle-row" data-testid="services-auto-start-row">
+            <div>
+              <div className="field-label" data-testid="services-auto-start-label">
+                Auto-start services on launch
+              </div>
+              <div className="helper" data-testid="services-auto-start-helper">
+                Takes effect next time Lillith Offline opens.
+              </div>
+            </div>
+            <button
+              className={`toggle-button ${
+                settings.auto_start_services ? "active" : ""
+              }`}
+              onClick={() =>
+                updateSettings({
+                  auto_start_services: !settings.auto_start_services,
+                })
+              }
+              data-testid="services-auto-start-toggle"
+            >
+              {settings.auto_start_services ? "Enabled" : "Disabled"}
+            </button>
+          </div>
+          <div className="toggle-row" data-testid="services-auto-refresh-row">
+            <div>
+              <div
+                className="field-label"
+                data-testid="services-auto-refresh-label"
+              >
+                Auto-refresh status (every 20s)
+              </div>
+              <div className="helper" data-testid="services-auto-refresh-helper">
+                Last update: {lastUpdated || "Just now"}
+              </div>
+            </div>
+            <button
+              className={`toggle-button ${
+                settings.auto_refresh_services ? "active" : ""
+              }`}
+              onClick={() =>
+                updateSettings({
+                  auto_refresh_services: !settings.auto_refresh_services,
+                })
+              }
+              data-testid="services-auto-refresh-toggle"
+            >
+              {settings.auto_refresh_services ? "Enabled" : "Disabled"}
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="grid two-column" data-testid="services-grid">
         {services.map((service) => (
           <div
