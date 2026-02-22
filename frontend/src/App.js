@@ -1197,6 +1197,234 @@ const Projects = ({ activeProject, setActiveProject, selectedModel, modelStatus 
   );
 };
 
+const Services = () => {
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [notice, setNotice] = useState("");
+
+  const loadServices = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API}/services`);
+      setServices(response.data);
+    } catch (error) {
+      console.error(error);
+      setNotice("Unable to load services.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadServices();
+  }, []);
+
+  const updateField = (serviceId, field, value) => {
+    setServices((prev) =>
+      prev.map((service) =>
+        service.id === serviceId ? { ...service, [field]: value } : service
+      )
+    );
+  };
+
+  const saveService = async (service) => {
+    setNotice("");
+    try {
+      const response = await axios.put(`${API}/services/${service.id}`, {
+        name: service.name,
+        base_url: service.base_url,
+        health_url: service.health_url,
+        start_command: service.start_command,
+        stop_command: service.stop_command,
+      });
+      setServices((prev) =>
+        prev.map((item) => (item.id === service.id ? response.data : item))
+      );
+      setNotice(`${service.name} settings saved.`);
+    } catch (error) {
+      console.error(error);
+      setNotice("Unable to save service settings.");
+    }
+  };
+
+  const startService = async (service) => {
+    setNotice("");
+    try {
+      await axios.post(`${API}/services/${service.id}/start`);
+      setNotice(`${service.name} started.`);
+      await loadServices();
+    } catch (error) {
+      console.error(error);
+      setNotice(`Unable to start ${service.name}.`);
+    }
+  };
+
+  const stopService = async (service) => {
+    setNotice("");
+    try {
+      await axios.post(`${API}/services/${service.id}/stop`);
+      setNotice(`${service.name} stopped.`);
+      await loadServices();
+    } catch (error) {
+      console.error(error);
+      setNotice(`Unable to stop ${service.name}.`);
+    }
+  };
+
+  const openService = (service) => {
+    if (!service.base_url) {
+      setNotice("Set a base URL before opening the service.");
+      return;
+    }
+    window.open(service.base_url, "_blank", "noopener,noreferrer");
+  };
+
+  return (
+    <div className="page" data-testid="services-page">
+      <div className="page-header" data-testid="services-header">
+        <div>
+          <div className="eyebrow" data-testid="services-eyebrow">
+            Services Console
+          </div>
+          <h1 className="page-title" data-testid="services-title">
+            Start, stop, and route Lilliths local AI tools.
+          </h1>
+        </div>
+        <button
+          className="lilith-button"
+          onClick={loadServices}
+          data-testid="services-refresh-button"
+        >
+          {loading ? "Refreshing..." : "Refresh status"}
+        </button>
+      </div>
+
+      {notice && (
+        <div className="notice" data-testid="services-notice">
+          {notice}
+        </div>
+      )}
+
+      <div className="grid two-column" data-testid="services-grid">
+        {services.map((service) => (
+          <div
+            key={service.id}
+            className="glass-panel service-card"
+            data-testid={`service-card-${service.id}`}
+          >
+            <div className="panel-header" data-testid={`service-header-${service.id}`}>
+              <div className="panel-title" data-testid={`service-name-${service.id}`}>
+                {service.name}
+              </div>
+              <span
+                className={`service-status ${service.status}`}
+                data-testid={`service-status-${service.id}`}
+              >
+                {service.status || "unknown"}
+              </span>
+            </div>
+            <div className="service-actions" data-testid={`service-actions-${service.id}`}>
+              <button
+                className="lilith-button"
+                onClick={() => startService(service)}
+                data-testid={`service-start-${service.id}`}
+              >
+                <Play className="button-icon" data-testid={`service-start-icon-${service.id}`} />
+                Start
+              </button>
+              <button
+                className="lilith-button secondary"
+                onClick={() => stopService(service)}
+                data-testid={`service-stop-${service.id}`}
+              >
+                <Square className="button-icon" data-testid={`service-stop-icon-${service.id}`} />
+                Stop
+              </button>
+              <button
+                className="lilith-button secondary"
+                onClick={() => openService(service)}
+                data-testid={`service-open-${service.id}`}
+              >
+                <ExternalLink
+                  className="button-icon"
+                  data-testid={`service-open-icon-${service.id}`}
+                />
+                Open UI
+              </button>
+            </div>
+
+            <div className="form-grid" data-testid={`service-config-${service.id}`}>
+              <label className="form-field" data-testid={`service-base-url-${service.id}`}>
+                <span className="field-label" data-testid={`service-base-url-label-${service.id}`}>
+                  Base URL
+                </span>
+                <input
+                  className="lilith-input"
+                  value={service.base_url || ""}
+                  onChange={(event) =>
+                    updateField(service.id, "base_url", event.target.value)
+                  }
+                  placeholder="http://localhost:1234"
+                  data-testid={`service-base-url-input-${service.id}`}
+                />
+              </label>
+              <label className="form-field" data-testid={`service-health-url-${service.id}`}>
+                <span className="field-label" data-testid={`service-health-url-label-${service.id}`}>
+                  Health URL
+                </span>
+                <input
+                  className="lilith-input"
+                  value={service.health_url || ""}
+                  onChange={(event) =>
+                    updateField(service.id, "health_url", event.target.value)
+                  }
+                  placeholder="/health or /models"
+                  data-testid={`service-health-url-input-${service.id}`}
+                />
+              </label>
+              <label className="form-field" data-testid={`service-start-cmd-${service.id}`}>
+                <span className="field-label" data-testid={`service-start-cmd-label-${service.id}`}>
+                  Start command
+                </span>
+                <input
+                  className="lilith-input"
+                  value={service.start_command || ""}
+                  onChange={(event) =>
+                    updateField(service.id, "start_command", event.target.value)
+                  }
+                  placeholder="Full path to .bat or .exe"
+                  data-testid={`service-start-cmd-input-${service.id}`}
+                />
+              </label>
+              <label className="form-field" data-testid={`service-stop-cmd-${service.id}`}>
+                <span className="field-label" data-testid={`service-stop-cmd-label-${service.id}`}>
+                  Stop command
+                </span>
+                <input
+                  className="lilith-input"
+                  value={service.stop_command || ""}
+                  onChange={(event) =>
+                    updateField(service.id, "stop_command", event.target.value)
+                  }
+                  placeholder="Optional stop command"
+                  data-testid={`service-stop-cmd-input-${service.id}`}
+                />
+              </label>
+            </div>
+            <button
+              className="lilith-button secondary"
+              onClick={() => saveService(service)}
+              data-testid={`service-save-${service.id}`}
+            >
+              Save settings
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const PluginBay = () => {
   const [plugins, setPlugins] = useState([]);
   const [loading, setLoading] = useState(false);
