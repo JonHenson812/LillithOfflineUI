@@ -693,15 +693,15 @@ const Dashboard = () => {
     { id: "sentinel", label: "Sentinel" },
   ];
 
-  useEffect(() = {
-    return () = {
+  useEffect(() => {
+    return () => {
       if (avatarFileUrl) {
         URL.revokeObjectURL(avatarFileUrl);
       }
     };
   }, [avatarFileUrl]);
 
-  const handleAvatarFileChange = (event) = {
+  const handleAvatarFileChange = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
     if (avatarFileUrl) {
@@ -711,7 +711,7 @@ const Dashboard = () => {
     setAvatarFileUrl(url);
   };
 
-  const clearAvatarFile = () = {
+  const clearAvatarFile = () => {
     if (avatarFileUrl) {
       URL.revokeObjectURL(avatarFileUrl);
     }
