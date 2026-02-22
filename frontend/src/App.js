@@ -289,11 +289,35 @@ const SideNav = () => {
 };
 
 
-const AvatarCanvas = ({ emotion }) => {
+const AvatarCanvas = ({
+  emotion,
+  avatarUrl,
+  environment,
+  character,
+  interactionPulse,
+}) => {
   const canvasRef = useRef(null);
-  const materialRef = useRef(null);
-  const ringMaterialRef = useRef(null);
-  const colors = useMemo(
+  const groupRef = useRef(null);
+  const placeholderRef = useRef(null);
+  const modelRef = useRef(null);
+  const sceneRef = useRef(null);
+  const lightRef = useRef(null);
+  const materialRefs = useRef({
+    sphere: null,
+    ring: null,
+    floor: null,
+    wall: null,
+  });
+  const interactionRef = useRef(0);
+  const palettes = useMemo(
+    () => ({
+      "lillith-core": "#53d3ff",
+      archivist: "#ffbf63",
+      sentinel: "#b48cff",
+    }),
+    []
+  );
+  const emotionColors = useMemo(
     () => ({
       idle: "#53d3ff",
       happy: "#5dffb3",
@@ -302,47 +326,124 @@ const AvatarCanvas = ({ emotion }) => {
     }),
     []
   );
+  const environments = useMemo(
+    () => ({
+      "minimal-sci-fi": {
+        background: "#07080f",
+        floor: "#111827",
+        wall: "#1f2937",
+        accent: "#53d3ff",
+      },
+      "cozy-library": {
+        background: "#140f0c",
+        floor: "#2b1f16",
+        wall: "#332519",
+        accent: "#ffbf63",
+      },
+      "futuristic-lab": {
+        background: "#081322",
+        floor: "#0c1a2b",
+        wall: "#13263c",
+        accent: "#5dffb3",
+      },
+    }),
+    []
+  );
+
+  useEffect(() => {
+    interactionRef.current = performance.now();
+  }, [interactionPulse]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return undefined;
 
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      alpha: true,
+      antialias: true,
+    });
     renderer.setPixelRatio(window.devicePixelRatio || 1);
 
     const scene = new THREE.Scene();
+    sceneRef.current = scene;
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.set(0, 0, 4);
+    camera.position.set(0, 0.2, 4);
 
     const group = new THREE.Group();
+    group.position.y = -0.2;
+    groupRef.current = group;
     scene.add(group);
 
+    const env = environments[environment] || environments["minimal-sci-fi"];
+    scene.background = new THREE.Color(env.background);
+
+    const floorMaterial = new THREE.MeshStandardMaterial({
+      color: env.floor,
+      metalness: 0.2,
+      roughness: 0.8,
+    });
+    materialRefs.current.floor = floorMaterial;
+    const floor = new THREE.Mesh(
+      new THREE.CircleGeometry(3.5, 64),
+      floorMaterial
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -1.6;
+    scene.add(floor);
+
+    const wallMaterial = new THREE.MeshStandardMaterial({
+      color: env.wall,
+      metalness: 0.1,
+      roughness: 0.9,
+      side: THREE.BackSide,
+      transparent: true,
+      opacity: 0.6,
+    });
+    materialRefs.current.wall = wallMaterial;
+    const wall = new THREE.Mesh(
+      new THREE.CylinderGeometry(3.8, 3.8, 2.4, 64, 1, true),
+      wallMaterial
+    );
+    wall.position.y = -0.4;
+    scene.add(wall);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const pointLight = new THREE.PointLight(env.accent, 1.4);
+    pointLight.position.set(3, 3, 3);
+    lightRef.current = pointLight;
+    scene.add(pointLight);
+
+    const placeholder = new THREE.Group();
     const sphereMaterial = new THREE.MeshStandardMaterial({
-      color: colors.idle,
-      emissive: colors.idle,
-      emissiveIntensity: 0.4,
+      color: palettes["lillith-core"],
+      emissive: emotionColors.idle,
+      emissiveIntensity: 0.35,
       roughness: 0.25,
       metalness: 0.6,
     });
-    materialRef.current = sphereMaterial;
-    const sphere = new THREE.Mesh(new THREE.SphereGeometry(1.2, 64, 64), sphereMaterial);
-    group.add(sphere);
+    materialRefs.current.sphere = sphereMaterial;
+    const sphere = new THREE.Mesh(
+      new THREE.SphereGeometry(1.1, 64, 64),
+      sphereMaterial
+    );
+    placeholder.add(sphere);
 
     const ringMaterial = new THREE.MeshStandardMaterial({
-      color: colors.idle,
-      emissive: colors.idle,
-      emissiveIntensity: 0.6,
+      color: palettes["lillith-core"],
+      emissive: emotionColors.idle,
+      emissiveIntensity: 0.5,
       roughness: 0.4,
     });
-    ringMaterialRef.current = ringMaterial;
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(1.8, 0.05, 16, 100), ringMaterial);
+    materialRefs.current.ring = ringMaterial;
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(1.7, 0.05, 16, 100),
+      ringMaterial
+    );
     ring.rotation.x = Math.PI / 2;
-    group.add(ring);
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-    const pointLight = new THREE.PointLight(0xffffff, 1.2);
-    pointLight.position.set(4, 4, 4);
-    scene.add(pointLight);
+    placeholder.add(ring);
+    placeholderRef.current = placeholder;
+    group.add(placeholder);
 
     const container = canvas.parentElement;
     const resize = () => {
@@ -359,10 +460,11 @@ const AvatarCanvas = ({ emotion }) => {
     let frameId = 0;
     const animate = (time) => {
       const t = time * 0.001;
-      sphere.rotation.y = t * 0.4;
-      sphere.rotation.x = Math.sin(t / 2) * 0.1;
-      sphere.position.y = Math.sin(t) * 0.15;
-      ring.rotation.z = t * 0.2;
+      const approach = Math.max(0, 1 - (time - interactionRef.current) / 1600);
+      group.position.x = Math.sin(t * 0.6) * 0.6;
+      group.position.z = Math.cos(t * 0.6) * 0.4 - approach * 1.2;
+      group.position.y = -0.2 + Math.sin(t) * 0.05;
+      group.rotation.y = Math.sin(t * 0.5) * 0.3;
       renderer.render(scene, camera);
       frameId = requestAnimationFrame(animate);
     };
@@ -371,25 +473,94 @@ const AvatarCanvas = ({ emotion }) => {
     return () => {
       cancelAnimationFrame(frameId);
       window.removeEventListener("resize", resize);
+      floor.geometry.dispose();
+      wall.geometry.dispose();
       sphere.geometry.dispose();
       ring.geometry.dispose();
+      floorMaterial.dispose();
+      wallMaterial.dispose();
       sphereMaterial.dispose();
       ringMaterial.dispose();
       renderer.dispose();
     };
-  }, [colors]);
+  }, [environments, palettes, emotionColors, environment]);
 
   useEffect(() => {
-    const color = new THREE.Color(colors[emotion] || colors.idle);
-    if (materialRef.current) {
-      materialRef.current.color = color;
-      materialRef.current.emissive = color;
+    const env = environments[environment] || environments["minimal-sci-fi"];
+    if (sceneRef.current) {
+      sceneRef.current.background = new THREE.Color(env.background);
     }
-    if (ringMaterialRef.current) {
-      ringMaterialRef.current.color = color;
-      ringMaterialRef.current.emissive = color;
+    if (materialRefs.current.floor) {
+      materialRefs.current.floor.color = new THREE.Color(env.floor);
     }
-  }, [emotion, colors]);
+    if (materialRefs.current.wall) {
+      materialRefs.current.wall.color = new THREE.Color(env.wall);
+    }
+    if (lightRef.current) {
+      lightRef.current.color = new THREE.Color(env.accent);
+    }
+  }, [environment, environments]);
+
+  useEffect(() => {
+    const baseColor = new THREE.Color(palettes[character] || palettes["lillith-core"]);
+    const emotionColor = new THREE.Color(
+      emotionColors[emotion] || emotionColors.idle
+    );
+    if (materialRefs.current.sphere) {
+      materialRefs.current.sphere.color = baseColor;
+      materialRefs.current.sphere.emissive = emotionColor;
+    }
+    if (materialRefs.current.ring) {
+      materialRefs.current.ring.color = baseColor;
+      materialRefs.current.ring.emissive = emotionColor;
+    }
+    if (modelRef.current) {
+      modelRef.current.traverse((child) => {
+        if (child.isMesh && child.material && child.material.emissive) {
+          child.material.emissive = emotionColor;
+        }
+      });
+    }
+  }, [emotion, character, palettes, emotionColors]);
+
+  useEffect(() => {
+    const group = groupRef.current;
+    if (!group) return;
+
+    if (modelRef.current) {
+      group.remove(modelRef.current);
+      modelRef.current = null;
+    }
+
+    if (!avatarUrl) {
+      if (placeholderRef.current && !group.children.includes(placeholderRef.current)) {
+        group.add(placeholderRef.current);
+      }
+      return;
+    }
+
+    if (placeholderRef.current) {
+      group.remove(placeholderRef.current);
+    }
+
+    const loader = new GLTFLoader();
+    loader.load(
+      avatarUrl,
+      (gltf) => {
+        const model = gltf.scene;
+        model.scale.set(1.4, 1.4, 1.4);
+        model.position.set(0, -1.4, 0);
+        group.add(model);
+        modelRef.current = model;
+      },
+      undefined,
+      () => {
+        if (placeholderRef.current && !group.children.includes(placeholderRef.current)) {
+          group.add(placeholderRef.current);
+        }
+      }
+    );
+  }, [avatarUrl]);
 
   return (
     <canvas
