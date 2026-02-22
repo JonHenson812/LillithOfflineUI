@@ -129,6 +129,7 @@ class CharacterAutofillRequest(BaseModel):
     appearance: Optional[str] = None
     backstory: Optional[str] = None
     quirks: Optional[str] = None
+    model: Optional[str] = None
 
 
 class CharacterProfile(BaseModel):
