@@ -324,11 +324,9 @@ async def update_project(project_id: str, update: ProjectUpdate):
 
 @api_router.delete("/projects/{project_id}")
 async def delete_project(project_id: str):
-    projects = await read_projects()
-    updated = [project for project in projects if project["id"] != project_id]
-    if len(updated) == len(projects):
+    removed = await remove_project(project_id)
+    if not removed:
         raise HTTPException(status_code=404, detail="Project not found")
-    await write_projects(updated)
     return {"status": "deleted"}
 
 
