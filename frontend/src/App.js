@@ -1328,13 +1328,31 @@ const Services = () => {
             Start, stop, and route Lillith's local AI tools.
           </h1>
         </div>
-        <button
-          className="lilith-button"
-          onClick={loadServices}
-          data-testid="services-refresh-button"
-        >
-          {loading ? "Refreshing..." : "Refresh status"}
-        </button>
+        <div className="page-actions" data-testid="services-actions">
+          <button
+            className="lilith-button"
+            onClick={startAllServices}
+            data-testid="services-start-all"
+          >
+            <Play className="button-icon" data-testid="services-start-all-icon" />
+            Start all
+          </button>
+          <button
+            className="lilith-button secondary"
+            onClick={stopAllServices}
+            data-testid="services-stop-all"
+          >
+            <Square className="button-icon" data-testid="services-stop-all-icon" />
+            Stop all
+          </button>
+          <button
+            className="lilith-button secondary"
+            onClick={loadServices}
+            data-testid="services-refresh-button"
+          >
+            {loading ? "Refreshing..." : "Refresh status"}
+          </button>
+        </div>
       </div>
 
       {notice && (
