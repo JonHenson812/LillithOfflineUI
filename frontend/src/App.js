@@ -94,6 +94,8 @@ const TopBar = ({
             <span className="model-status" data-testid="model-status">
               {modelStatus === "loading"
                 ? "Scanning models..."
+                : modelStatus === "empty"
+                ? "No models found"
                 : "LM Studio offline"}
             </span>
           )}
