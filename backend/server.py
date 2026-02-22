@@ -632,65 +632,45 @@ async def delete_project(project_id: str):
 
 @api_router.post("/characters/autofill", response_model=CharacterProfile)
 async def autofill_character(request: CharacterAutofillRequest):
-    seed = request.name.strip() or "Lillith"
-    roles = ["Protagonist", "Antagonist", "Mentor", "Rogue", "Mystic"]
-    archetypes = ["Reluctant hero", "Visionary", "Survivor", "Trickster", "Guardian"]
-    goals = [
-        "Protects a fragile secret",
-        "Seeks redemption",
-        "Wants to rebuild a lost home",
-        "Chases forbidden knowledge",
-        "Keeps the crew together",
-    ]
-    flaws = [
-        "Trusts too easily",
-        "Carries a hidden fear",
-        "Avoids vulnerability",
-        "Obsessed with control",
-        "Haunted by a past mistake",
-    ]
-    voices = [
-        "Low and measured",
-        "Quick, razor-sharp wit",
-        "Soft-spoken with intensity",
-        "Confident, rhythmic cadence",
-        "Warm but guarded",
-    ]
-    appearances = [
-        "Wears layered streetwear and tech charms",
-        "Scar across the brow, eyes that never settle",
-        "Elegant silhouette with ceremonial tattoos",
-        "Practical gear, dusted with travel marks",
-        "Minimalist style with bold accent color",
-    ]
-    backstories = [
-        "Raised in an isolated enclave guarding ancient archives.",
-        "Former agent who walked away from a corrupt regime.",
-        "Grew up as a performer hiding a secret lineage.",
-        "Survivor of a fallen city, carrying its memory forward.",
-        "Trained by a collective that values balance above all.",
-    ]
-    quirks = [
-        "Sketches symbols while thinking",
-        "Keeps a pocket recorder of ambient sounds",
-        "Collects small mechanical trinkets",
-        "Has a ritual tea routine before decisions",
-        "Talks to inanimate objects when stressed",
-    ]
+    ai_data: Optional[Dict[str, Any]] = None
+    if request.model:
+        lm_base = normalize_lm_url(await get_lm_studio_base())
+        prompt = (
+            "Fill in missing character details. Return ONLY valid JSON with keys: "
+            "name, role, age, archetype, goal, flaw, voice, appearance, backstory, quirks. "
+            "Use the provided details as truth and complete the rest. "
+            f"Input: {request.model_dump(exclude_none=True)}"
+        )
+        payload = {
+            "model": request.model,
+            "stream": False,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a character designer that outputs JSON only.",
+                },
+                {"role": "user", "content": prompt},
+            ],
+            "temperature": 0.7,
+        }
+        try:
+            async with httpx.AsyncClient(timeout=30) as client:
+                response = await client.post(
+                    f"{lm_base}/chat/completions",
+                    json=payload,
+                )
+                response.raise_for_status()
+                content = (
+                    response.json()
+                    .get("choices", [{}])[0]
+                    .get("message", {})
+                    .get("content", "")
+                )
+                ai_data = extract_json_from_text(content)
+        except httpx.HTTPError:
+            ai_data = None
 
-    profile = CharacterProfile(
-        name=request.name.strip() or "Unnamed",
-        role=fill_value(request.role, roles, seed + "role"),
-        age=request.age or random.Random(seed + "age").randint(19, 48),
-        archetype=fill_value(request.archetype, archetypes, seed + "arch"),
-        goal=fill_value(request.goal, goals, seed + "goal"),
-        flaw=fill_value(request.flaw, flaws, seed + "flaw"),
-        voice=fill_value(request.voice, voices, seed + "voice"),
-        appearance=fill_value(request.appearance, appearances, seed + "appearance"),
-        backstory=fill_value(request.backstory, backstories, seed + "backstory"),
-        quirks=fill_value(request.quirks, quirks, seed + "quirks"),
-    )
-
+    profile = build_character_profile(request, ai_data)
     return profile
 
 
