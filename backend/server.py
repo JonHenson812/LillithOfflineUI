@@ -191,6 +191,20 @@ class SettingsUpdate(BaseModel):
     auto_refresh_services: Optional[bool] = None
 
 
+class SdTxt2ImgRequest(BaseModel):
+    prompt: str
+    negative_prompt: Optional[str] = None
+    steps: Optional[int] = 25
+    cfg_scale: Optional[float] = 7.0
+    width: Optional[int] = 768
+    height: Optional[int] = 1024
+    seed: Optional[int] = None
+
+
+class ComfyUiRequest(BaseModel):
+    workflow: Dict[str, Any]
+
+
 class PluginInfo(BaseModel):
     name: str
     path: str
