@@ -1185,6 +1185,9 @@ const PluginBay = () => {
 function App() {
   const [activeProject, setActiveProject] = useState(null);
   const [onlineMode, setOnlineMode] = useState(false);
+  const [availableModels, setAvailableModels] = useState([]);
+  const [selectedModel, setSelectedModel] = useState("");
+  const [modelStatus, setModelStatus] = useState("loading");
 
   useEffect(() => {
     const stored = localStorage.getItem("lillithActiveProject");
