@@ -964,6 +964,74 @@ async def stop_all_services():
     return await stop_services_bulk()
 
 
+@api_router.post("/ai/sd/txt2img")
+async def sd_txt2img(request: SdTxt2ImgRequest):
+    base_url = await get_service_base_url("stable_diffusion")
+    payload = {
+        "prompt": request.prompt,
+        "negative_prompt": request.negative_prompt or "",
+        "steps": request.steps or 25,
+        "cfg_scale": request.cfg_scale or 7,
+        "width": request.width or 768,
+        "height": request.height or 1024,
+    }
+    if request.seed is not None:
+        payload["seed"] = request.seed
+    try:
+        async with httpx.AsyncClient(timeout=60) as client:
+            response = await client.post(
+                f"{base_url}/sdapi/v1/txt2img",
+                json=payload,
+            )
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=502, detail="Stable Diffusion unavailable") from exc
+
+
+@api_router.post("/ai/comfyui/run")
+async def run_comfyui(request: ComfyUiRequest):
+    base_url = await get_service_base_url("comfyui")
+    client_id = str(uuid.uuid4())
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            prompt_response = await client.post(
+                f"{base_url}/prompt",
+                json={"prompt": request.workflow, "client_id": client_id},
+            )
+            prompt_response.raise_for_status()
+            prompt_id = prompt_response.json().get("prompt_id")
+            if not prompt_id:
+                return {"prompt_id": None, "images": []}
+
+            images = []
+            for _ in range(20):
+                await asyncio.sleep(1)
+                history_response = await client.get(f"{base_url}/history/{prompt_id}")
+                if history_response.status_code = 200:
+                    continue
+                history = history_response.json().get(prompt_id)
+                if not history:
+                    continue
+                outputs = history.get("outputs") or {}
+                for output in outputs.values():
+                    for image in output.get("images", []):
+                        filename = image.get("filename")
+                        if not filename:
+                            continue
+                        subfolder = image.get("subfolder", "")
+                        img_type = image.get("type", "output")
+                        url = (
+                            f"{base_url}/view?filename={filename}&subfolder={subfolder}&type={img_type}"
+                        )
+                        images.append({"url": url, "filename": filename})
+                if images:
+                    break
+            return {"prompt_id": prompt_id, "images": images}
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=502, detail="ComfyUI unavailable") from exc
+
+
 @api_router.get("/settings", response_model=AppSettings)
 async def get_settings_endpoint():
     settings = await fetch_settings()
