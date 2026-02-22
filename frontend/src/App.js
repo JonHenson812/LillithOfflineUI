@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
+import { BrowserRouter, Routes, Route, NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Bot,
