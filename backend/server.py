@@ -273,6 +273,157 @@ async def update_project_story_bible(project_id: str, story_bible: str) -> None:
     await persist_project(project)
 
 
+def normalize_lm_url(base_url: str) -> str:
+    trimmed = base_url.rstrip("/")
+    if trimmed.endswith("/v1"):
+        return trimmed
+    return f"{trimmed}/v1"
+
+
+async def ensure_default_services() -> None:
+    defaults = [
+        {
+            "id": "lm_studio",
+            "name": "LM Studio",
+            "base_url": LM_STUDIO_URL,
+            "health_url": f"{normalize_lm_url(LM_STUDIO_URL)}/models",
+            "start_command": '"C:\\Users\\Jonathan\\AppData\\Local\\Programs\\LM Studio\\LM Studio.exe"',
+            "stop_command": 'taskkill /IM "LM Studio.exe" /F',
+        },
+        {
+            "id": "comfyui",
+            "name": "ComfyUI",
+            "base_url": "http://127.0.0.1:8188",
+            "health_url": "http://127.0.0.1:8188/system_stats",
+            "start_command": "C:\\ComfyUI\\run_nvidia_gpu.bat",
+            "stop_command": "",
+        },
+        {
+            "id": "stable_diffusion",
+            "name": "Stable Diffusion WebUI",
+            "base_url": "http://127.0.0.1:7860",
+            "health_url": "http://127.0.0.1:7860/sdapi/v1/sd-models",
+            "start_command": "C:\\Users\\JHens\\sd.webui\\webui-user.bat",
+            "stop_command": "",
+        },
+    ]
+
+    async with aiosqlite.connect(DB_PATH) as conn:
+        cursor = await conn.execute("SELECT id FROM services")
+        rows = await cursor.fetchall()
+        existing = {row[0] for row in rows}
+        for service in defaults:
+            if service["id"] in existing:
+                continue
+            await conn.execute(
+                """
+                INSERT INTO services (id, name, base_url, health_url, start_command, stop_command, last_pid)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    service["id"],
+                    service["name"],
+                    service["base_url"],
+                    service["health_url"],
+                    service["start_command"],
+                    service["stop_command"],
+                    None,
+                ),
+            )
+        await conn.commit()
+
+
+async def fetch_service(service_id: str) -> Optional[Dict[str, Any]]:
+    await init_db()
+    async with aiosqlite.connect(DB_PATH) as conn:
+        conn.row_factory = aiosqlite.Row
+        cursor = await conn.execute(
+            "SELECT * FROM services WHERE id = ?",
+            (service_id,),
+        )
+        row = await cursor.fetchone()
+    if row:
+        return dict(row)
+    return None
+
+
+async def fetch_services() -> List[Dict[str, Any]]:
+    await init_db()
+    async with aiosqlite.connect(DB_PATH) as conn:
+        conn.row_factory = aiosqlite.Row
+        cursor = await conn.execute("SELECT * FROM services ORDER BY name")
+        rows = await cursor.fetchall()
+    return [dict(row) for row in rows]
+
+
+async def update_service(service_id: str, update_data: Dict[str, Any]) -> Dict[str, Any]:
+    service = await fetch_service(service_id)
+    if not service:
+        raise HTTPException(status_code=404, detail="Service not found")
+    service.update({key: value for key, value in update_data.items() if value is not None})
+    async with aiosqlite.connect(DB_PATH) as conn:
+        await conn.execute(
+            """
+            UPDATE services
+            SET name = ?, base_url = ?, health_url = ?, start_command = ?, stop_command = ?
+            WHERE id = ?
+            """,
+            (
+                service["name"],
+                service.get("base_url"),
+                service.get("health_url"),
+                service.get("start_command"),
+                service.get("stop_command"),
+                service_id,
+            ),
+        )
+        await conn.commit()
+    return service
+
+
+async def update_service_pid(service_id: str, pid: Optional[int]) -> None:
+    async with aiosqlite.connect(DB_PATH) as conn:
+        await conn.execute(
+            "UPDATE services SET last_pid = ? WHERE id = ?",
+            (pid, service_id),
+        )
+        await conn.commit()
+
+
+def launch_command(command: str) -> int:
+    if os.name == "nt":
+        process = subprocess.Popen(command, shell=True, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+    else:
+        process = subprocess.Popen(command, shell=True, start_new_session=True)
+    return process.pid
+
+
+def stop_process(pid: int) -> None:
+    if os.name == "nt":
+        subprocess.Popen(f"taskkill /PID {pid} /F", shell=True)
+    else:
+        os.kill(pid, signal.SIGTERM)
+
+
+async def get_service_status(service: Dict[str, Any]) -> str:
+    health_url = service.get("health_url")
+    if not health_url:
+        return "unknown"
+    try:
+        async with httpx.AsyncClient(timeout=3) as client:
+            response = await client.get(health_url)
+            return "online" if response.status_code < 400 else "offline"
+    except httpx.HTTPError:
+        return "offline"
+
+
+async def get_lm_studio_base() -> str:
+    service = await fetch_service("lm_studio")
+    if service and service.get("base_url"):
+        return service["base_url"]
+    return LM_STUDIO_URL
+
+
 def fill_value(value: Optional[str], options: List[str], seed: str) -> str:
     if value:
         return value
