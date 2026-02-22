@@ -552,7 +552,12 @@ const Dashboard = () => {
   );
 };
 
-const CharacterBuilder = ({ activeProject, onAttachCharacter }) => {
+const CharacterBuilder = ({
+  activeProject,
+  onAttachCharacter,
+  selectedModel,
+  modelStatus,
+}) => {
   const [form, setForm] = useState({
     name: "",
     role: "",
