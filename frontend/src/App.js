@@ -230,6 +230,55 @@ const MenuBar = () => {
   );
 };
 
+const SideNav = () => {
+  return (
+    <aside className="sidebar" data-testid="sidebar">
+      <div className="sidebar-header" data-testid="sidebar-header">
+        <Bot className="logo-icon" data-testid="sidebar-logo-icon" />
+        <div className="sidebar-title" data-testid="sidebar-title">
+          Lillith Core
+        </div>
+      </div>
+      <nav className="nav" data-testid="sidebar-nav">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "active" : ""}`
+              }
+              data-testid={item.testId}
+            >
+              <Icon className="nav-icon" data-testid={`${item.testId}-icon`} />
+              <span data-testid={`${item.testId}-label`}>{item.label}</span>
+            </NavLink>
+          );
+        })}
+      </nav>
+      <div className="sidebar-footer" data-testid="sidebar-footer">
+        <div className="sidebar-meta" data-testid="sidebar-meta">
+          <span className="label" data-testid="sidebar-meta-label">
+            Plugins
+          </span>
+          <span className="value" data-testid="sidebar-meta-value">
+            Drop-in ready
+          </span>
+        </div>
+        <div className="sidebar-meta" data-testid="sidebar-meta-status">
+          <span className="label" data-testid="sidebar-meta-status-label">
+            Status
+          </span>
+          <span className="value" data-testid="sidebar-meta-status-value">
+            Listening for updates
+          </span>
+        </div>
+      </div>
+    </aside>
+  );
+};
+
 
 const Dashboard = () => {
   const [messages, setMessages] = useState([
