@@ -528,10 +528,12 @@ def main():
     test_suites = [
         ("API Root", tester.test_api_root),
         ("Status Endpoints", tester.test_status_endpoints),
+        ("Settings API", tester.test_settings_api),
         ("Projects CRUD", tester.test_projects_crud),
         ("Character Autofill", tester.test_character_autofill),
         ("Plugins Endpoint", tester.test_plugins_endpoint),
         ("Services API", tester.test_services_api),
+        ("Services Bulk Operations", tester.test_services_bulk_operations),
         ("LM Studio Offline Endpoints", tester.test_lm_studio_offline_endpoints),
         ("Edge Cases", tester.test_edge_cases),
     ]
