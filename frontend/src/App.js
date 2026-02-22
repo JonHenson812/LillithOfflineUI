@@ -11,6 +11,11 @@ import {
   Sparkles,
   Orbit,
   Aperture,
+  ServerCog,
+  RefreshCcw,
+  Play,
+  Square,
+  ExternalLink,
 } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
