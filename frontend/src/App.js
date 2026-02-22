@@ -1604,6 +1604,7 @@ function App() {
               selectedModel={selectedModel}
               setSelectedModel={setSelectedModel}
               modelStatus={modelStatus}
+              onRefreshModels={fetchModels}
             />
             <div className="app-content" data-testid="app-content">
               <Routes>
