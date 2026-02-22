@@ -683,6 +683,9 @@ const CharacterBuilder = ({
           >
             Attach to active project
           </button>
+          <div className="helper" data-testid="character-model-hint">
+            Model: {modelStatus === "ready" ? selectedModel || "Select a model" : modelStatus === "empty" ? "No models found" : "LM Studio offline"}
+          </div>
         </div>
       </div>
 
