@@ -1252,6 +1252,10 @@ function App() {
               activeProject={activeProject}
               onlineMode={onlineMode}
               setOnlineMode={setOnlineMode}
+              availableModels={availableModels}
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+              modelStatus={modelStatus}
             />
             <div className="app-content" data-testid="app-content">
               <Routes>
