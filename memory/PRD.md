@@ -10,10 +10,12 @@ Build "Lillith Offline" (desktop-first, then web UI) to automate writing books. 
 - Plugin discovery: Directory scan from `/app/plugins`.
 - AI: LM Studio integration (OpenAI-compatible API) for story-bible generation; streaming responses.
 - Services control: Backend-managed service registry for LM Studio, ComfyUI, and Stable Diffusion with start/stop commands.
+- 3D Avatar: Three.js canvas scene with emotion-driven color states.
 
 ## Implemented (MVP + Phase 1 + Improvements)
 - Desktop-style app shell with navigation (Command Deck, Character Builder, Projects, Plugin Bay, Services).
-- Command Deck dashboard with chat panel and avatar stage placeholder.
+- Command Deck dashboard with chat panel, 3D avatar stage, and service health widget.
+- 3D avatar canvas with idle + emotion states (happy/curious/concerned), plus popup mode note.
 - Character Builder with LM Studio auto-fill (fallback if LM unavailable) and attach-to-project flow.
 - Project Vault with create/load/edit/save/delete using SQLite storage.
 - Story Bible prompt editor (tone, length, tags) before generation.
@@ -29,7 +31,7 @@ Build "Lillith Offline" (desktop-first, then web UI) to automate writing books. 
 ## Prioritized Backlog
 ### P0
 - Electron desktop shell packaging.
-- 3D avatar runtime (main window + popup) integration.
+- 3D avatar runtime with real model loading + emotions/visemes.
 
 ### P1
 - ComfyUI/Stable Diffusion integration for illustration mini-app.
