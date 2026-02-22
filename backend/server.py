@@ -394,6 +394,89 @@ async def autofill_character(request: CharacterAutofillRequest):
     return profile
 
 
+@api_router.get("/ai/models")
+async def list_models():
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            response = await client.get(f"{LM_STUDIO_URL}/models")
+            response.raise_for_status()
+            payload = response.json()
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=502, detail="LM Studio is unavailable") from exc
+
+    models = [
+        {"id": model.get("id")}
+        for model in payload.get("data", [])
+        if model.get("id")
+    ]
+    return {"models": models}
+
+
+@api_router.post("/ai/story-bible/stream")
+async def stream_story_bible(request: StoryBibleRequest):
+    project = await fetch_project_by_id(request.project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    prompt = (
+        "You are Lillith, a narrative architect. Create a rich story bible with "
+        "sections for Overview, Themes, World Rules, Key Locations, Factions, "
+        "Technology or Magic System, Character Dynamics, and Plot Seeds. "
+        f"Project name: {project.get('name')}. "
+        f"Genre: {project.get('genre') or 'Not specified'}. "
+        f"Description: {project.get('description') or 'No description provided'}. "
+        f"Tone: {request.tone or 'Cinematic, immersive, and character-driven'}."
+    )
+
+    payload = {
+        "model": request.model,
+        "stream": True,
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are Lillith Offline, a precise story bible engine.",
+            },
+            {"role": "user", "content": prompt},
+        ],
+        "temperature": 0.7,
+    }
+
+    async def event_stream():
+        full_text = ""
+        try:
+            async with httpx.AsyncClient(timeout=None) as client:
+                async with client.stream(
+                    "POST",
+                    f"{LM_STUDIO_URL}/chat/completions",
+                    json=payload,
+                ) as response:
+                    response.raise_for_status()
+                    async for line in response.aiter_lines():
+                        if not line:
+                            continue
+                        if line.startswith("data: "):
+                            data = line[6:].strip()
+                            if data == "[DONE]":
+                                break
+                            try:
+                                chunk = json.loads(data)
+                                delta = (
+                                    chunk.get("choices", [{}])[0]
+                                    .get("delta", {})
+                                    .get("content")
+                                )
+                                if delta:
+                                    full_text += delta
+                                    yield delta
+                            except json.JSONDecodeError:
+                                continue
+        finally:
+            if full_text:
+                await update_project_story_bible(request.project_id, full_text)
+
+    return StreamingResponse(event_stream(), media_type="text/plain")
+
+
 @api_router.get("/plugins", response_model=List[PluginInfo])
 async def list_plugins():
     ensure_storage()
