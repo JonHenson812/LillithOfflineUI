@@ -10,8 +10,6 @@ import {
   UserRound,
   Sparkles,
   Orbit,
-  Wand2,
-  Layers,
   Aperture,
 } from "lucide-react";
 
