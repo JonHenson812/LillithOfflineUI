@@ -677,7 +677,7 @@ const CharacterBuilder = ({ activeProject, onAttachCharacter }) => {
   );
 };
 
-const Projects = ({ activeProject, setActiveProject }) => {
+const Projects = ({ activeProject, setActiveProject, selectedModel, modelStatus }) => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
