@@ -726,6 +726,7 @@ const Dashboard = () => {
       text: chatInput.trim(),
     };
     setMessages((prev) => [...prev, userMessage]);
+    setInteractionPulse(Date.now());
     setChatInput("");
     setTimeout(() => {
       setMessages((prev) => [
