@@ -1631,6 +1631,7 @@ function App() {
                   }
                 />
                 <Route path="/plugins" element={<PluginBay />} />
+                <Route path="/services" element={<Services />} />
               </Routes>
             </div>
           </div>
