@@ -483,7 +483,7 @@ const AvatarCanvas = ({
       ringMaterial.dispose();
       renderer.dispose();
     };
-  }, [environments, palettes, emotionColors, environment]);
+  }, [environments, palettes, emotionColors]);
 
   useEffect(() => {
     const env = environments[environment] || environments["minimal-sci-fi"];
