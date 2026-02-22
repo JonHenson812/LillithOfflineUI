@@ -1275,6 +1275,8 @@ function App() {
                     <Projects
                       activeProject={activeProject}
                       setActiveProject={setActiveProject}
+                      selectedModel={selectedModel}
+                      modelStatus={modelStatus}
                     />
                   }
                 />
