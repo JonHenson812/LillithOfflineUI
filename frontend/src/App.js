@@ -986,18 +986,19 @@ const PluginBay = () => {
   const [plugins, setPlugins] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const fetchPlugins = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API}/plugins`);
+      setPlugins(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchPlugins = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${API}/plugins`);
-        setPlugins(response.data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchPlugins();
   }, []);
 
