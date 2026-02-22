@@ -664,6 +664,35 @@
   font-size: 0.82rem;
 }
 
+.service-preferences {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.toggle-button {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: var(--lilith-text);
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.toggle-button.active {
+  background: rgba(93, 255, 179, 0.2);
+  color: #5dffb3;
+}
+
 .empty-state {
   padding: 20px;
   text-align: center;
