@@ -607,6 +607,84 @@ const Dashboard = () => {
         </div>
       </div>
 
+      <div className="glass-panel" data-testid="service-health-panel">
+        <div className="panel-header" data-testid="service-health-header">
+          <div className="panel-title" data-testid="service-health-title">
+            Service Health
+          </div>
+          <div className="page-actions" data-testid="service-health-actions">
+            <div className="helper" data-testid="service-health-updated">
+              Last update: {serviceUpdated || "Just now"}
+            </div>
+            <button
+              className="lilith-button secondary"
+              onClick={loadServiceHealth}
+              data-testid="service-health-refresh"
+            >
+              Refresh
+            </button>
+          </div>
+        </div>
+        {serviceNotice && (
+          <div className="notice" data-testid="service-health-notice">
+            {serviceNotice}
+          </div>
+        )}
+        <div className="service-health-list" data-testid="service-health-list">
+          {serviceHealth.length === 0 ? (
+            <div className="empty-state" data-testid="service-health-empty">
+              No services detected yet.
+            </div>
+          ) : (
+            serviceHealth.map((service) => (
+              <div
+                key={service.id}
+                className="service-health-row"
+                data-testid={`service-health-${service.id}`}
+              >
+                <div className="service-health-info">
+                  <div
+                    className="service-health-name"
+                    data-testid={`service-health-name-${service.id}`}
+                  >
+                    {service.name}
+                  </div>
+                  <span
+                    className={`service-status ${service.status || "unknown"}`}
+                    data-testid={`service-health-status-${service.id}`}
+                  >
+                    {service.status || "unknown"}
+                  </span>
+                </div>
+                <div className="service-health-actions">
+                  <button
+                    className="lilith-button"
+                    onClick={() => toggleService(service.id, "start")}
+                    data-testid={`service-health-start-${service.id}`}
+                  >
+                    Start
+                  </button>
+                  <button
+                    className="lilith-button secondary"
+                    onClick={() => toggleService(service.id, "stop")}
+                    data-testid={`service-health-stop-${service.id}`}
+                  >
+                    Stop
+                  </button>
+                  <button
+                    className="lilith-button secondary"
+                    onClick={() => openServicePanel(service)}
+                    data-testid={`service-health-open-${service.id}`}
+                  >
+                    Open UI
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
       <div className="grid" data-testid="agents-grid">
         {agentCards.map((agent) => (
           <div
