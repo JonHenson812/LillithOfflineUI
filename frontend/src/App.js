@@ -737,6 +737,7 @@ const Dashboard = () => {
           text: "I’m mapping that across the agent grid. Want a character spun up next?",
         },
       ]);
+      setInteractionPulse(Date.now());
     }, 700);
   };
 
