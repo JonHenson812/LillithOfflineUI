@@ -666,6 +666,55 @@ async def stream_story_bible(request: StoryBibleRequest):
     return StreamingResponse(event_stream(), media_type="text/plain")
 
 
+@api_router.get("/services", response_model=List[ServiceConfig])
+async def list_services():
+    services = await fetch_services()
+    statuses = await asyncio.gather(
+        *[get_service_status(service) for service in services], return_exceptions=True
+    )
+    for service, status in zip(services, statuses):
+        service["status"] = status if isinstance(status, str) else "offline"
+    return services
+
+
+@api_router.put("/services/{service_id}", response_model=ServiceConfig)
+async def update_service_endpoint(service_id: str, update: ServiceUpdate):
+    updated = await update_service(service_id, update.model_dump(exclude_unset=True))
+    updated["status"] = await get_service_status(updated)
+    return updated
+
+
+@api_router.post("/services/{service_id}/start")
+async def start_service(service_id: str):
+    service = await fetch_service(service_id)
+    if not service:
+        raise HTTPException(status_code=404, detail="Service not found")
+    command = service.get("start_command")
+    if not command:
+        raise HTTPException(status_code=400, detail="No start command configured")
+    pid = launch_command(command)
+    await update_service_pid(service_id, pid)
+    return {"status": "started", "pid": pid}
+
+
+@api_router.post("/services/{service_id}/stop")
+async def stop_service(service_id: str):
+    service = await fetch_service(service_id)
+    if not service:
+        raise HTTPException(status_code=404, detail="Service not found")
+    command = service.get("stop_command")
+    if command:
+        launch_command(command)
+        await update_service_pid(service_id, None)
+        return {"status": "stopped"}
+    pid = service.get("last_pid")
+    if not pid:
+        raise HTTPException(status_code=400, detail="No running process found")
+    stop_process(pid)
+    await update_service_pid(service_id, None)
+    return {"status": "stopped"}
+
+
 @api_router.get("/plugins", response_model=List[PluginInfo])
 async def list_plugins():
     ensure_storage()
