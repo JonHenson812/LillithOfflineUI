@@ -304,10 +304,9 @@ async def create_project(project: ProjectCreate):
 
 @api_router.get("/projects/{project_id}", response_model=Project)
 async def get_project(project_id: str):
-    projects = await read_projects()
-    for project in projects:
-        if project["id"] == project_id:
-            return project
+    project = await fetch_project_by_id(project_id)
+    if project:
+        return project
     raise HTTPException(status_code=404, detail="Project not found")
 
 
