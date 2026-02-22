@@ -606,6 +606,43 @@
   color: var(--lilith-muted);
 }
 
+.service-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.service-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.service-status {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.68rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--lilith-muted);
+}
+
+.service-status.online {
+  background: rgba(93, 255, 179, 0.2);
+  color: #5dffb3;
+}
+
+.service-status.offline {
+  background: rgba(255, 122, 122, 0.2);
+  color: #ff7a7a;
+}
+
+.service-status.unknown {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--lilith-muted);
+}
+
 .empty-state {
   padding: 20px;
   text-align: center;
