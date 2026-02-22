@@ -1552,13 +1552,15 @@ function App() {
   const fetchModels = async () => {
     setModelStatus("loading");
     try {
-      const response = await axios.get(`${API}/ai/models`);
+      const response = await axios.get(`${API}/ai/models`, { timeout: 5000 });
       const models = response.data.models || [];
       setAvailableModels(models);
       setSelectedModel((prev) => prev || models[0]?.id || "");
       setModelStatus(models.length ? "ready" : "empty");
     } catch (error) {
       console.error(error);
+      setAvailableModels([]);
+      setSelectedModel("");
       setModelStatus("offline");
     }
   };
