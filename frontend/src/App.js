@@ -316,29 +316,29 @@ const AvatarScene = ({ emotion }) => {
   });
 
   return (
-    group
-      ambientLight intensity={0.6} /
-      pointLight position={[4, 4, 4]} intensity={1.2} /
-      mesh ref={meshRef}
-        sphereGeometry args={[1.2, 64, 64]} /
-        meshStandardMaterial
+    <group>
+      <ambientLight intensity={0.6} />
+      <pointLight position={[4, 4, 4]} intensity={1.2} />
+      <mesh ref={meshRef}>
+        <sphereGeometry args={[1.2, 64, 64]} />
+        <meshStandardMaterial
           color={color}
           emissive={color}
           emissiveIntensity={0.4}
           roughness={0.25}
           metalness={0.6}
-        /
-      /mesh
-      mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}
-        torusGeometry args={[1.8, 0.05, 16, 100]} /
-        meshStandardMaterial
+        />
+      </mesh>
+      <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[1.8, 0.05, 16, 100]} />
+        <meshStandardMaterial
           color={color}
           emissive={color}
           emissiveIntensity={0.6}
           roughness={0.4}
-        /
-      /mesh
-    /group
+        />
+      </mesh>
+    </group>
   );
 };
 
