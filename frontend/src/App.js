@@ -689,6 +689,7 @@ const Projects = ({ activeProject, setActiveProject, selectedModel, modelStatus 
     story_bible: "",
   });
   const [notice, setNotice] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const loadProjects = async () => {
     setLoading(true);
