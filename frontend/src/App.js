@@ -1013,7 +1013,11 @@ const PluginBay = () => {
             Drop mini-apps into the plugins folder to expand Lillith.
           </h1>
         </div>
-        <button className="lilith-button" data-testid="plugins-refresh-button">
+        <button
+          className="lilith-button"
+          onClick={fetchPlugins}
+          data-testid="plugins-refresh-button"
+        >
           Refresh list
         </button>
       </div>
