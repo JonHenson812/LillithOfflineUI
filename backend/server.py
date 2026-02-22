@@ -353,6 +353,55 @@ async def ensure_default_services() -> None:
         await conn.commit()
 
 
+async def ensure_default_settings() -> None:
+    defaults = {
+        "auto_start_services": "false",
+        "auto_refresh_services": "false",
+    }
+    async with aiosqlite.connect(DB_PATH) as conn:
+        cursor = await conn.execute("SELECT key FROM settings")
+        rows = await cursor.fetchall()
+        existing = {row[0] for row in rows}
+        for key, value in defaults.items():
+            if key in existing:
+                continue
+            await conn.execute(
+                "INSERT INTO settings (key, value) VALUES (?, ?)",
+                (key, value),
+            )
+        await conn.commit()
+
+
+def parse_setting(value: Optional[str]) -> bool:
+    return str(value).lower() == "true"
+
+
+async def fetch_settings() -> Dict[str, Any]:
+    await init_db()
+    async with aiosqlite.connect(DB_PATH) as conn:
+        cursor = await conn.execute("SELECT key, value FROM settings")
+        rows = await cursor.fetchall()
+    settings_map = {key: value for key, value in rows}
+    return {
+        "auto_start_services": parse_setting(settings_map.get("auto_start_services")),
+        "auto_refresh_services": parse_setting(settings_map.get("auto_refresh_services")),
+    }
+
+
+async def update_settings(update_data: Dict[str, Any]) -> Dict[str, Any]:
+    await init_db()
+    async with aiosqlite.connect(DB_PATH) as conn:
+        for key, value in update_data.items():
+            if value is None:
+                continue
+            await conn.execute(
+                "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+                (key, str(value).lower()),
+            )
+        await conn.commit()
+    return await fetch_settings()
+
+
 async def fetch_service(service_id: str) -> Optional[Dict[str, Any]]:
     await init_db()
     async with aiosqlite.connect(DB_PATH) as conn:
