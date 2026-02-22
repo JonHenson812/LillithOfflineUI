@@ -43,6 +43,12 @@ const navItems = [
     testId: "nav-projects",
   },
   {
+    path: "/visual-studio",
+    label: "Visual Studio",
+    icon: Image,
+    testId: "nav-visual-studio",
+  },
+  {
     path: "/plugins",
     label: "Plugin Bay",
     icon: Plug,
