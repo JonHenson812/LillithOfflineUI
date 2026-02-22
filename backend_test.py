@@ -263,6 +263,86 @@ class LillithAPITester:
         
         return all(results)
 
+    def test_settings_api(self):
+        """Test Settings API for service preferences"""
+        results = []
+        
+        # 1. Test getting default settings
+        success, settings = self.run_test(
+            "Get Default Settings",
+            "GET", 
+            "settings",
+            200
+        )
+        results.append(success)
+        
+        if success and settings:
+            print(f"   Default auto_start_services: {settings.get('auto_start_services', 'N/A')}")
+            print(f"   Default auto_refresh_services: {settings.get('auto_refresh_services', 'N/A')}")
+        
+        # 2. Test updating settings - enable auto-start
+        update_data = {
+            "auto_start_services": True,
+            "auto_refresh_services": False
+        }
+        
+        success, updated_settings = self.run_test(
+            "Update Settings - Enable Auto-Start",
+            "PUT",
+            "settings",
+            200,
+            data=update_data
+        )
+        results.append(success)
+        
+        if success:
+            print(f"   Updated auto_start_services: {updated_settings.get('auto_start_services', 'N/A')}")
+            print(f"   Updated auto_refresh_services: {updated_settings.get('auto_refresh_services', 'N/A')}")
+        
+        # 3. Test updating settings - enable auto-refresh
+        update_data2 = {
+            "auto_start_services": False,
+            "auto_refresh_services": True
+        }
+        
+        success, updated_settings2 = self.run_test(
+            "Update Settings - Enable Auto-Refresh",
+            "PUT",
+            "settings", 
+            200,
+            data=update_data2
+        )
+        results.append(success)
+        
+        # 4. Test partial settings update
+        partial_update = {
+            "auto_start_services": True
+        }
+        
+        success, partial_updated = self.run_test(
+            "Partial Settings Update",
+            "PUT",
+            "settings",
+            200,
+            data=partial_update
+        )
+        results.append(success)
+        
+        # 5. Verify settings persistence
+        success, final_settings = self.run_test(
+            "Verify Settings Persistence",
+            "GET",
+            "settings", 
+            200
+        )
+        results.append(success)
+        
+        if success:
+            print(f"   Final auto_start_services: {final_settings.get('auto_start_services', 'N/A')}")
+            print(f"   Final auto_refresh_services: {final_settings.get('auto_refresh_services', 'N/A')}")
+        
+        return all(results)
+
     def test_services_api(self):
         """Test Services API endpoints"""
         results = []
@@ -336,6 +416,46 @@ class LillithAPITester:
             else:
                 print("   No services found with valid ID for testing")
                 results.append(False)
+        
+        return all(results)
+
+    def test_services_bulk_operations(self):
+        """Test Services bulk start-all and stop-all endpoints"""
+        results = []
+        
+        # 1. Test start-all services
+        success, response = self.run_test(
+            "Start All Services",
+            "POST",
+            "services/start-all",
+            200
+        )
+        results.append(success)
+        
+        if success and 'results' in response:
+            results_list = response['results']
+            print(f"   Start-all processed {len(results_list)} services")
+            for result in results_list[:3]:  # Show first 3 results
+                service_id = result.get('id', 'unknown')
+                status = result.get('status', 'unknown')
+                print(f"     Service {service_id}: {status}")
+        
+        # 2. Test stop-all services
+        success, response = self.run_test(
+            "Stop All Services", 
+            "POST",
+            "services/stop-all",
+            200
+        )
+        results.append(success)
+        
+        if success and 'results' in response:
+            results_list = response['results']
+            print(f"   Stop-all processed {len(results_list)} services")
+            for result in results_list[:3]:  # Show first 3 results
+                service_id = result.get('id', 'unknown')
+                status = result.get('status', 'unknown')
+                print(f"     Service {service_id}: {status}")
         
         return all(results)
 
