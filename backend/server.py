@@ -136,6 +136,25 @@ class StoryBibleRequest(BaseModel):
     tone: Optional[str] = None
 
 
+class ServiceConfig(BaseModel):
+    id: str
+    name: str
+    base_url: Optional[str] = None
+    health_url: Optional[str] = None
+    start_command: Optional[str] = None
+    stop_command: Optional[str] = None
+    last_pid: Optional[int] = None
+    status: Optional[str] = None
+
+
+class ServiceUpdate(BaseModel):
+    name: Optional[str] = None
+    base_url: Optional[str] = None
+    health_url: Optional[str] = None
+    start_command: Optional[str] = None
+    stop_command: Optional[str] = None
+
+
 class PluginInfo(BaseModel):
     name: str
     path: str
