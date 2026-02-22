@@ -693,29 +693,47 @@ const Dashboard = () => {
     { id: "sentinel", label: "Sentinel" },
   ];
 
+  const avatarOptions = [
+    { id: "placeholder", label: "Placeholder Sphere", url: "" },
+    {
+      id: "gothic-lillith",
+      label: "Gothic Lillith",
+      url: "https://models.readyplayer.me/699b3e4fdea6e53d0cd9192c.glb",
+    },
+  ];
+
+  const resolvedAvatarUrl =
+    uploadedAvatarUrl ||
+    avatarOptions.find((option) => option.id === selectedAvatarId)?.url ||
+    "";
+
   useEffect(() => {
     return () => {
-      if (avatarFileUrl) {
-        URL.revokeObjectURL(avatarFileUrl);
+      if (uploadedAvatarUrl) {
+        URL.revokeObjectURL(uploadedAvatarUrl);
       }
     };
-  }, [avatarFileUrl]);
+  }, [uploadedAvatarUrl]);
+
+  const handleAvatarSelect = (value) => {
+    setSelectedAvatarId(value);
+  };
 
   const handleAvatarFileChange = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (avatarFileUrl) {
-      URL.revokeObjectURL(avatarFileUrl);
+    if (uploadedAvatarUrl) {
+      URL.revokeObjectURL(uploadedAvatarUrl);
     }
     const url = URL.createObjectURL(file);
-    setAvatarFileUrl(url);
+    setUploadedAvatarUrl(url);
   };
 
   const clearAvatarFile = () => {
-    if (avatarFileUrl) {
-      URL.revokeObjectURL(avatarFileUrl);
+    if (uploadedAvatarUrl) {
+      URL.revokeObjectURL(uploadedAvatarUrl);
     }
-    setAvatarFileUrl("");
+    setUploadedAvatarUrl("");
   };
 
   const sendMessage = () => {
