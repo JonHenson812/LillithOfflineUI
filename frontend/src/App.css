@@ -145,6 +145,32 @@
   font-weight: 600;
 }
 
+.model-select {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--lilith-muted);
+  min-width: 180px;
+}
+
+.lilith-select {
+  background: rgba(8, 10, 16, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--lilith-text);
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+}
+
+.model-status {
+  font-size: 0.78rem;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 143, 77, 0.16);
+  color: var(--lilith-glow);
+}
+
 .app-content {
   padding: 32px;
   display: flex;
