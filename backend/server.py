@@ -35,8 +35,26 @@ LM_STUDIO_URL = os.environ["LM_STUDIO_URL"]
 def ensure_storage():
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     PLUGINS_DIR.mkdir(parents=True, exist_ok=True)
-    if not PROJECTS_FILE.exists():
-        PROJECTS_FILE.write_text("[]", encoding="utf-8")
+
+
+async def init_db():
+    ensure_storage()
+    async with aiosqlite.connect(DB_PATH) as conn:
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS projects (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                description TEXT,
+                genre TEXT,
+                story_bible TEXT,
+                character_profile TEXT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+            """
+        )
+        await conn.commit()
 
 
 # Create the main app without a prefix
