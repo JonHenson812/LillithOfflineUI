@@ -842,7 +842,7 @@ async def stream_story_bible(request: StoryBibleRequest):
     async def event_stream():
         full_text = ""
         try:
-            async with httpx.AsyncClient(timeout=None) as client:
+            async with httpx.AsyncClient(timeout=httpx.Timeout(20, connect=5)) as client:
                 async with client.stream(
                     "POST",
                     f"{lm_base}/chat/completions",
