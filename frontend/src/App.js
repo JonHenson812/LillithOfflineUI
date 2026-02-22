@@ -46,6 +46,12 @@ const navItems = [
     icon: Plug,
     testId: "nav-plugins",
   },
+  {
+    path: "/services",
+    label: "Services",
+    icon: ServerCog,
+    testId: "nav-services",
+  },
 ];
 
 const TopBar = ({
