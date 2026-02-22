@@ -896,11 +896,11 @@ async def start_service(service_id: str):
         raise HTTPException(status_code=404, detail="Service not found")
     command = service.get("start_command")
     if not command:
-        raise HTTPException(status_code=400, detail="No start command configured")
+        return {"status": "error", "detail": "No start command configured"}
     try:
         pid = launch_command(command)
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail="Failed to start service") from exc
+    except Exception:
+        return {"status": "error", "detail": "Failed to start service"}
     await update_service_pid(service_id, pid)
     return {"status": "started", "pid": pid}
 
@@ -914,64 +914,29 @@ async def stop_service(service_id: str):
     if command:
         try:
             launch_command(command)
-        except Exception as exc:
-            raise HTTPException(status_code=500, detail="Failed to stop service") from exc
+        except Exception:
+            return {"status": "error", "detail": "Failed to stop service"}
         await update_service_pid(service_id, None)
         return {"status": "stopped"}
     pid = service.get("last_pid")
     if not pid:
-        raise HTTPException(status_code=400, detail="No running process found")
+        return {"status": "error", "detail": "No running process found"}
     try:
         stop_process(pid)
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail="Failed to stop service") from exc
+    except Exception:
+        return {"status": "error", "detail": "Failed to stop service"}
     await update_service_pid(service_id, None)
     return {"status": "stopped"}
 
 
 @api_router.post("/services/start-all")
 async def start_all_services():
-    services = await fetch_services()
-    results = []
-    for service in services:
-        command = service.get("start_command")
-        if not command:
-            results.append({"id": service["id"], "status": "skipped"})
-            continue
-        try:
-            pid = launch_command(command)
-            await update_service_pid(service["id"], pid)
-            results.append({"id": service["id"], "status": "started", "pid": pid})
-        except Exception:
-            results.append({"id": service["id"], "status": "error"})
-    return {"results": results}
+    return await start_services_bulk()
 
 
 @api_router.post("/services/stop-all")
 async def stop_all_services():
-    services = await fetch_services()
-    results = []
-    for service in services:
-        command = service.get("stop_command")
-        if command:
-            try:
-                launch_command(command)
-                await update_service_pid(service["id"], None)
-                results.append({"id": service["id"], "status": "stopped"})
-            except Exception:
-                results.append({"id": service["id"], "status": "error"})
-            continue
-        pid = service.get("last_pid")
-        if not pid:
-            results.append({"id": service["id"], "status": "skipped"})
-            continue
-        try:
-            stop_process(pid)
-            await update_service_pid(service["id"], None)
-            results.append({"id": service["id"], "status": "stopped"})
-        except Exception:
-            results.append({"id": service["id"], "status": "error"})
-    return {"results": results}
+    return await stop_services_bulk()
 
 
 @api_router.get("/settings", response_model=AppSettings)
