@@ -865,6 +865,75 @@ const Dashboard = () => {
               Popup Mode
             </button>
           </div>
+          <div className="avatar-customize" data-testid="avatar-customize">
+            <label className="form-field" data-testid="avatar-environment-field">
+              <span className="field-label" data-testid="avatar-environment-label">
+                Environment
+              </span>
+              <select
+                className="lilith-select"
+                value={avatarEnvironment}
+                onChange={(event) => setAvatarEnvironment(event.target.value)}
+                data-testid="avatar-environment-select"
+              >
+                {environmentOptions.map((option) => (
+                  <option
+                    key={option.id}
+                    value={option.id}
+                    data-testid={`avatar-environment-option-${option.id}`}
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="form-field" data-testid="avatar-character-field">
+              <span className="field-label" data-testid="avatar-character-label">
+                Character preset
+              </span>
+              <select
+                className="lilith-select"
+                value={avatarCharacter}
+                onChange={(event) => setAvatarCharacter(event.target.value)}
+                data-testid="avatar-character-select"
+              >
+                {characterOptions.map((option) => (
+                  <option
+                    key={option.id}
+                    value={option.id}
+                    data-testid={`avatar-character-option-${option.id}`}
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="form-field" data-testid="avatar-upload-field">
+              <span className="field-label" data-testid="avatar-upload-label">
+                Upload GLB/GLTF
+              </span>
+              <input
+                className="lilith-input"
+                type="file"
+                accept=".glb,.gltf"
+                onChange={handleAvatarFileChange}
+                data-testid="avatar-upload-input"
+              />
+              <div className="avatar-upload-actions" data-testid="avatar-upload-actions">
+                <span className="helper" data-testid="avatar-upload-helper">
+                  {avatarFileUrl ? "Custom avatar loaded." : "Using placeholder avatar."}
+                </span>
+                <button
+                  className="lilith-button secondary"
+                  onClick={clearAvatarFile}
+                  disabled={!avatarFileUrl}
+                  data-testid="avatar-upload-clear"
+                >
+                  Clear upload
+                </button>
+              </div>
+            </label>
+          </div>
           <div className="avatar-status" data-testid="avatar-status">
             Current mode: {avatarMode === "main" ? "Main window" : "Popup window"}.
             Popup mode will be always-on-top + click-through in the Electron build.
