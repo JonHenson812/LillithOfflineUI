@@ -931,6 +931,18 @@ async def stop_all_services():
     return {"results": results}
 
 
+@api_router.get("/settings", response_model=AppSettings)
+async def get_settings_endpoint():
+    settings = await fetch_settings()
+    return AppSettings(**settings)
+
+
+@api_router.put("/settings", response_model=AppSettings)
+async def update_settings_endpoint(update: SettingsUpdate):
+    settings = await update_settings(update.model_dump(exclude_unset=True))
+    return AppSettings(**settings)
+
+
 @api_router.get("/plugins", response_model=List[PluginInfo])
 async def list_plugins():
     ensure_storage()
