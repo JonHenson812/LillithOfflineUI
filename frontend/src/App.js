@@ -759,6 +759,55 @@ const Projects = ({ activeProject, setActiveProject, selectedModel, modelStatus 
     }
   };
 
+  const generateStoryBible = async () => {
+    if (!selectedProject?.id) {
+      setNotice("Load a project before generating the story bible.");
+      return;
+    }
+    if (modelStatus !== "ready" || !selectedModel) {
+      setNotice("LM Studio is offline or no model selected.");
+      return;
+    }
+    setIsGenerating(true);
+    setNotice("Generating story bible...");
+    try {
+      const response = await fetch(`${API}/ai/story-bible/stream`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_id: selectedProject.id,
+          model: selectedModel,
+        }),
+      });
+      if (!response.ok || !response.body) {
+        throw new Error("Story bible stream failed");
+      }
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let result = "";
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        result += decoder.decode(value);
+        setEditForm((prev) => ({ ...prev, story_bible: result }));
+      }
+      setSelectedProject((prev) =>
+        prev ? { ...prev, story_bible: result } : prev
+      );
+      setActiveProject((prev) =>
+        prev && prev.id === selectedProject.id
+          ? { ...prev, story_bible: result }
+          : prev
+      );
+      setNotice("Story bible updated.");
+    } catch (error) {
+      console.error(error);
+      setNotice("Unable to generate story bible.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const deleteProject = async (projectId) => {
     try {
       await axios.delete(`${API}/projects/${projectId}`);
