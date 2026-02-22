@@ -729,6 +729,9 @@ const Projects = ({ activeProject, setActiveProject }) => {
         setSelectedProject(null);
         setEditForm({ name: "", description: "", genre: "", story_bible: "" });
       }
+      if (activeProject?.id === projectId) {
+        setActiveProject(null);
+      }
       await loadProjects();
     } catch (error) {
       console.error(error);
