@@ -111,6 +111,13 @@ const TopBar = ({
                 : "LM Studio offline"}
             </span>
           )}
+          <button
+            className="icon-button"
+            onClick={onRefreshModels}
+            data-testid="model-refresh-button"
+          >
+            <RefreshCcw className="button-icon" data-testid="model-refresh-icon" />
+          </button>
         </div>
         <div className="active-project" data-testid="active-project">
           <span className="label" data-testid="active-project-label">
