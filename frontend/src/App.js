@@ -131,54 +131,105 @@ const TopBar = ({
   );
 };
 
-const SideNav = () => {
+const MenuBar = () => {
+  const [openMenu, setOpenMenu] = useState(null);
+  const navigate = useNavigate();
+
+  const menuItems = [
+    {
+      id: "file",
+      label: "File",
+      items: [
+        { id: "file-new", label: "New Project", action: "open-projects" },
+        { id: "file-open", label: "Open Project", action: "open-projects" },
+        { id: "file-save", label: "Save Project", action: "open-projects" },
+        { id: "file-export", label: "Export", action: "export" },
+      ],
+    },
+    {
+      id: "edit",
+      label: "Edit",
+      items: [
+        { id: "edit-undo", label: "Undo", action: "undo" },
+        { id: "edit-redo", label: "Redo", action: "redo" },
+        { id: "edit-find", label: "Find", action: "find" },
+      ],
+    },
+    {
+      id: "view",
+      label: "View",
+      items: [
+        { id: "view-sidebar", label: "Toggle Sidebar", action: "toggle-sidebar" },
+        { id: "view-focus", label: "Focus Mode", action: "focus" },
+      ],
+    },
+    {
+      id: "tools",
+      label: "Tools",
+      items: [
+        { id: "tools-services", label: "Services", action: "open-services" },
+        { id: "tools-plugins", label: "Plugins", action: "open-plugins" },
+      ],
+    },
+    {
+      id: "help",
+      label: "Help",
+      items: [
+        { id: "help-docs", label: "Documentation", action: "docs" },
+        { id: "help-support", label: "Support", action: "support" },
+      ],
+    },
+  ];
+
+  const handleAction = (action) => {
+    if (action === "open-services") {
+      navigate("/services");
+    }
+    if (action === "open-plugins") {
+      navigate("/plugins");
+    }
+    if (action === "open-projects") {
+      navigate("/projects");
+    }
+    setOpenMenu(null);
+  };
+
   return (
-    <aside className="sidebar" data-testid="sidebar">
-      <div className="sidebar-header" data-testid="sidebar-header">
-        <Bot className="logo-icon" data-testid="sidebar-logo-icon" />
-        <div className="sidebar-title" data-testid="sidebar-title">
-          Lillith Core
-        </div>
-      </div>
-      <nav className="nav" data-testid="sidebar-nav">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={({ isActive }) =>
-                `nav-link ${isActive ? "active" : ""}`
-              }
-              data-testid={item.testId}
+    <div className="menu-bar" data-testid="menu-bar">
+      {menuItems.map((menu) => (
+        <div key={menu.id} className="menu-item" data-testid={`menu-${menu.id}`}>
+          <button
+            className="menu-button"
+            onClick={() =>
+              setOpenMenu((current) => (current === menu.id ? null : menu.id))
+            }
+            data-testid={`menu-button-${menu.id}`}
+          >
+            {menu.label}
+          </button>
+          {openMenu === menu.id && (
+            <div
+              className="menu-dropdown"
+              data-testid={`menu-dropdown-${menu.id}`}
             >
-              <Icon className="nav-icon" data-testid={`${item.testId}-icon`} />
-              <span data-testid={`${item.testId}-label`}>{item.label}</span>
-            </NavLink>
-          );
-        })}
-      </nav>
-      <div className="sidebar-footer" data-testid="sidebar-footer">
-        <div className="sidebar-meta" data-testid="sidebar-meta">
-          <span className="label" data-testid="sidebar-meta-label">
-            Plugins
-          </span>
-          <span className="value" data-testid="sidebar-meta-value">
-            Drop-in ready
-          </span>
+              {menu.items.map((item) => (
+                <button
+                  key={item.id}
+                  className="menu-dropdown-item"
+                  onClick={() => handleAction(item.action)}
+                  data-testid={`menu-item-${item.id}`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-        <div className="sidebar-meta" data-testid="sidebar-meta-status">
-          <span className="label" data-testid="sidebar-meta-status-label">
-            Status
-          </span>
-          <span className="value" data-testid="sidebar-meta-status-value">
-            Listening for updates
-          </span>
-        </div>
-      </div>
-    </aside>
+      ))}
+    </div>
   );
 };
+
 
 const Dashboard = () => {
   const [messages, setMessages] = useState([
