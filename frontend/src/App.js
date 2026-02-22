@@ -613,7 +613,6 @@ const Dashboard = () => {
       }
       await loadServiceHealth();
     } catch (error) {
-      console.error(error);
       setServiceNotice("Service action failed.");
     }
   };
