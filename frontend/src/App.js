@@ -1098,6 +1098,8 @@ function App() {
   useEffect(() => {
     if (activeProject) {
       localStorage.setItem("lillithActiveProject", JSON.stringify(activeProject));
+    } else {
+      localStorage.removeItem("lillithActiveProject");
     }
   }, [activeProject]);
 
