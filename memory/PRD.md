@@ -5,30 +5,32 @@ Build "Lillith Offline" (desktop-first, then web UI) to automate writing books. 
 
 ## Architecture Decisions
 - Frontend: React (CRA + Tailwind utilities) with custom stylized UI.
-- Backend: FastAPI (existing service), extended with local JSON storage for offline projects.
-- Storage: Local JSON file `/app/backend/data/projects.json` managed by backend API.
+- Backend: FastAPI, extended with local SQLite storage for offline projects.
+- Storage: SQLite file `/app/backend/data/lillith.sqlite` for projects; local storage for UI state.
 - Plugin discovery: Directory scan from `/app/plugins`.
-- AI: Character auto-fill uses deterministic local generator for now (placeholder until LM Studio integration).
+- AI: LM Studio integration (OpenAI-compatible API) for story-bible generation; streaming responses.
 
-## Implemented (MVP)
+## Implemented (MVP + Phase 1)
 - Desktop-style app shell with navigation (Command Deck, Character Builder, Projects, Plugin Bay).
 - Command Deck dashboard with chat panel and avatar stage placeholder.
-- Character Builder with auto-fill endpoint and attach-to-project flow.
-- Project Vault with create/load/edit/save/delete using local JSON storage.
+- Character Builder with placeholder auto-fill endpoint and attach-to-project flow.
+- Project Vault with create/load/edit/save/delete using SQLite storage.
 - Active project state stored in localStorage for fast resume.
 - Plugin Bay with scan + refresh for `/app/plugins`.
 - Online/offline mode toggle UI.
+- LM Studio model scan endpoint and UI dropdown.
+- Streaming story bible generation endpoint + UI button with live updates.
 
 ## Prioritized Backlog
 ### P0
 - Electron desktop shell packaging.
-- Integrate LM Studio for text generation + character autofill (replace placeholder).
+- Replace placeholder character auto-fill with LM Studio.
 - 3D avatar runtime (main window + popup) integration.
 
 ### P1
 - ComfyUI/Stable Diffusion integration for illustration mini-app.
 - Plugin manifest loader + dynamic mini-app registry.
-- Project “story bible” auto-generation with agent workflow.
+- Project “story bible” expansion into chapters + beat sheets.
 
 ### P2
 - Android companion app with project pack import/export.
