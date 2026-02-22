@@ -818,6 +818,51 @@ async def stop_service(service_id: str):
     return {"status": "stopped"}
 
 
+@api_router.post("/services/start-all")
+async def start_all_services():
+    services = await fetch_services()
+    results = []
+    for service in services:
+        command = service.get("start_command")
+        if not command:
+            results.append({"id": service["id"], "status": "skipped"})
+            continue
+        try:
+            pid = launch_command(command)
+            await update_service_pid(service["id"], pid)
+            results.append({"id": service["id"], "status": "started", "pid": pid})
+        except Exception:
+            results.append({"id": service["id"], "status": "error"})
+    return {"results": results}
+
+
+@api_router.post("/services/stop-all")
+async def stop_all_services():
+    services = await fetch_services()
+    results = []
+    for service in services:
+        command = service.get("stop_command")
+        if command:
+            try:
+                launch_command(command)
+                await update_service_pid(service["id"], None)
+                results.append({"id": service["id"], "status": "stopped"})
+            except Exception:
+                results.append({"id": service["id"], "status": "error"})
+            continue
+        pid = service.get("last_pid")
+        if not pid:
+            results.append({"id": service["id"], "status": "skipped"})
+            continue
+        try:
+            stop_process(pid)
+            await update_service_pid(service["id"], None)
+            results.append({"id": service["id"], "status": "stopped"})
+        except Exception:
+            results.append({"id": service["id"], "status": "error"})
+    return {"results": results}
+
+
 @api_router.get("/plugins", response_model=List[PluginInfo])
 async def list_plugins():
     ensure_storage()
