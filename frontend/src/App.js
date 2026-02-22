@@ -352,6 +352,39 @@ const Dashboard = () => {
   ]);
   const [chatInput, setChatInput] = useState("");
   const [avatarMode, setAvatarMode] = useState("main");
+  const [avatarEmotion, setAvatarEmotion] = useState("idle");
+  const [serviceHealth, setServiceHealth] = useState([]);
+  const [serviceNotice, setServiceNotice] = useState("");
+  const [serviceUpdated, setServiceUpdated] = useState("");
+
+  const loadServiceHealth = async () => {
+    try {
+      const response = await axios.get(`${API}/services`);
+      setServiceHealth(response.data);
+      setServiceUpdated(new Date().toLocaleTimeString());
+    } catch (error) {
+      console.error(error);
+      setServiceNotice("Unable to load service status.");
+    }
+  };
+
+  useEffect(() => {
+    loadServiceHealth();
+  }, []);
+
+  const toggleService = async (serviceId, action) => {
+    setServiceNotice("");
+    try {
+      const response = await axios.post(`${API}/services/${serviceId}/${action}`);
+      if (response.data.status === "error") {
+        setServiceNotice(response.data.detail || "Service action failed.");
+      }
+      await loadServiceHealth();
+    } catch (error) {
+      console.error(error);
+      setServiceNotice("Service action failed.");
+    }
+  };
 
   const agentCards = [
     {
