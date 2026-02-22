@@ -541,10 +541,37 @@ const Dashboard = () => {
             </span>
           </div>
           <div className="avatar-stage" data-testid="avatar-stage">
-            <Aperture className="avatar-icon" data-testid="avatar-icon" />
-            <div className="avatar-text" data-testid="avatar-text">
-              3D animated Lillith will render here.
+            <Canvas
+              className="avatar-canvas"
+              data-testid="avatar-canvas"
+              camera={{ position: [0, 0, 4], fov: 45 }}
+            >
+              <AvatarScene emotion={avatarEmotion} />
+            </Canvas>
+            <div className="avatar-overlay" data-testid="avatar-overlay">
+              <span data-testid="avatar-emotion-label">
+                Emotion: {avatarEmotion}
+              </span>
             </div>
+          </div>
+          <div className="avatar-controls" data-testid="avatar-emotion-controls">
+            {[
+              "idle",
+              "happy",
+              "curious",
+              "concerned",
+            ].map((mood) => (
+              <button
+                key={mood}
+                className={`lilith-button ${
+                  avatarEmotion === mood ? "" : "secondary"
+                }`}
+                onClick={() => setAvatarEmotion(mood)}
+                data-testid={`avatar-emotion-${mood}`}
+              >
+                {mood}
+              </button>
+            ))}
           </div>
           <div className="avatar-controls" data-testid="avatar-controls">
             <button
@@ -567,7 +594,8 @@ const Dashboard = () => {
             </button>
           </div>
           <div className="avatar-status" data-testid="avatar-status">
-            Current mode: {avatarMode === "main" ? "Main window" : "Popup window"}
+            Current mode: {avatarMode === "main" ? "Main window" : "Popup window"}.
+            Popup mode will be always-on-top + click-through in the Electron build.
           </div>
         </div>
       </div>
