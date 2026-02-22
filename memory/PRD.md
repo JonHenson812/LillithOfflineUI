@@ -16,6 +16,7 @@ Build "Lillith Offline" (desktop-first, then web UI) to automate writing books. 
 - Command Deck dashboard with chat panel and avatar stage placeholder.
 - Character Builder with LM Studio auto-fill (fallback if LM unavailable) and attach-to-project flow.
 - Project Vault with create/load/edit/save/delete using SQLite storage.
+- Story Bible prompt editor (tone, length, tags) before generation.
 - Active project state stored in localStorage for fast resume.
 - Plugin Bay with scan + refresh for `/app/plugins`.
 - Online/offline mode toggle UI.
