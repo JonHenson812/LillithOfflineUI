@@ -11,7 +11,6 @@ import {
   UserRound,
   Sparkles,
   Orbit,
-  Aperture,
   ServerCog,
   RefreshCcw,
   Play,
