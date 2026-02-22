@@ -56,7 +56,21 @@ async def init_db():
             )
             """
         )
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS services (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                base_url TEXT,
+                health_url TEXT,
+                start_command TEXT,
+                stop_command TEXT,
+                last_pid INTEGER
+            )
+            """
+        )
         await conn.commit()
+    await ensure_default_services()
 
 
 # Create the main app without a prefix
