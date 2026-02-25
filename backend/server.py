@@ -17,6 +17,7 @@ import aiosqlite
 import httpx
 import subprocess
 import signal
+import urllib.parse
 
 
 ROOT_DIR = Path(__file__).parent
