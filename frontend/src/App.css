@@ -734,6 +734,50 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.ambientcg-search {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ambientcg-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.ambientcg-card {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ambientcg-image {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ambientcg-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ambientcg-name {
+  font-weight: 600;
+}
+
+.ambientcg-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .panel-status {
   display: inline-flex;
   align-items: center;
