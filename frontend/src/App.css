@@ -734,6 +734,32 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.panel-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-pill {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--lilith-muted);
+}
+
+.status-pill.online {
+  background: rgba(93, 255, 179, 0.2);
+  color: #5dffb3;
+}
+
+.status-pill.offline {
+  background: rgba(255, 122, 122, 0.2);
+  color: #ff7a7a;
+}
+
 .note-list {
   margin: 0;
   padding-left: 20px;
