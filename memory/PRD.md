@@ -10,7 +10,7 @@ Build "Lillith Offline" (desktop-first, then web UI) to automate writing books. 
 - Plugin discovery: Directory scan from `/app/plugins`.
 - AI: LM Studio integration (OpenAI-compatible API) for story-bible generation; streaming responses.
 - Services control: Backend-managed service registry for LM Studio, ComfyUI, and Stable Diffusion with start/stop commands.
-- 3D Avatar: Three.js canvas scene with environment presets, character presets, and GLB upload.
+- 3D Avatar: Three.js canvas scene with environment presets, character presets, Ready Player Me default, and GLB upload.
 - Electron: Desktop shell scaffolding with packaging config (Windows .exe via electron-builder).
 
 ## Implemented (MVP + Phase 1 + Improvements)
