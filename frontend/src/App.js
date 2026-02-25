@@ -304,6 +304,7 @@ const AvatarCanvas = ({
   environment,
   character,
   interactionPulse,
+  textureUrl,
 }) => {
   const canvasRef = useRef(null);
   const groupRef = useRef(null);
