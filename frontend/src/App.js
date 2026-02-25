@@ -2222,14 +2222,23 @@ const VisualStudio = () => {
           <div className="helper" data-testid="comfy-helper">
             Export your workflow from ComfyUI (Queue → Export) and paste it here.
           </div>
-          <button
-            className="lilith-button"
-            onClick={runComfyUi}
-            disabled={comfyLoading}
-            data-testid="comfy-run-button"
-          >
-            {comfyLoading ? "Running..." : "Run workflow"}
-          </button>
+          <div className="button-row" data-testid="comfy-button-row">
+            <button
+              className="lilith-button secondary"
+              onClick={() => setComfyWorkflow(JSON.stringify(defaultComfyWorkflow, null, 2))}
+              data-testid="comfy-load-default"
+            >
+              Load default workflow
+            </button>
+            <button
+              className="lilith-button"
+              onClick={runComfyUi}
+              disabled={comfyLoading}
+              data-testid="comfy-run-button"
+            >
+              {comfyLoading ? "Running..." : "Run workflow"}
+            </button>
+          </div>
           <div className="image-grid" data-testid="comfy-image-grid">
             {comfyImages.map((image, index) => (
               <img
