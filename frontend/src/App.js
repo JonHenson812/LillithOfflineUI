@@ -513,6 +513,49 @@ const AvatarCanvas = ({
   }, [environment, environments]);
 
   useEffect(() => {
+    if (!materialRefs.current.floor || !materialRefs.current.wall) return;
+
+    if (!textureUrl) {
+      materialRefs.current.floor.map = null;
+      materialRefs.current.wall.map = null;
+      materialRefs.current.floor.needsUpdate = true;
+      materialRefs.current.wall.needsUpdate = true;
+      if (textureRef.current) {
+        textureRef.current.dispose();
+        textureRef.current = null;
+      }
+      return;
+    }
+
+    const loader = new TextureLoader();
+    loader.load(
+      textureUrl,
+      (texture) => {
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set(2, 2);
+        materialRefs.current.floor.map = texture;
+        materialRefs.current.wall.map = texture;
+        materialRefs.current.floor.needsUpdate = true;
+        materialRefs.current.wall.needsUpdate = true;
+        if (textureRef.current) {
+          textureRef.current.dispose();
+        }
+        textureRef.current = texture;
+      },
+      undefined,
+      () => {
+        setTimeout(() => {
+          if (textureRef.current) {
+            textureRef.current.dispose();
+            textureRef.current = null;
+          }
+        }, 0);
+      }
+    );
+  }, [textureUrl]);
+
+  useEffect(() => {
     const baseColor = new THREE.Color(palettes[character] || palettes["lillith-core"]);
     const emotionColor = new THREE.Color(
       emotionColors[emotion] || emotionColors.idle
