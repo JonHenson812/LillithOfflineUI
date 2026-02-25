@@ -2127,9 +2127,14 @@ const VisualStudio = () => {
             <div className="panel-title" data-testid="comfy-title">
               ComfyUI Workflow
             </div>
-            <span className="panel-badge" data-testid="comfy-badge">
-              workflow JSON
-            </span>
+            <div className="panel-status" data-testid="comfy-status">
+              <span className={`status-pill ${serviceStatus.comfyui}`} data-testid="comfy-status-pill">
+                {serviceStatus.comfyui}
+              </span>
+              <span className="panel-badge" data-testid="comfy-badge">
+                workflow JSON
+              </span>
+            </div>
           </div>
           {comfyNotice && (
             <div className="notice" data-testid="comfy-notice">
