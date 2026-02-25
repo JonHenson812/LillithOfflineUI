@@ -899,6 +899,7 @@ const Dashboard = () => {
               environment={avatarEnvironment}
               character={avatarCharacter}
               interactionPulse={interactionPulse}
+              textureUrl={roomTextureUrl}
             />
             <div className="avatar-overlay" data-testid="avatar-overlay">
               <span data-testid="avatar-emotion-label">
