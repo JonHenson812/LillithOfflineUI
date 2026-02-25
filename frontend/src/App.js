@@ -968,6 +968,21 @@ const Dashboard = () => {
                 ))}
               </select>
             </label>
+            <label className="form-field" data-testid="avatar-texture-field">
+              <span className="field-label" data-testid="avatar-texture-label">
+                Room texture URL (ambientCG)
+              </span>
+              <input
+                className="lilith-input"
+                value={roomTextureUrl}
+                onChange={(event) => setRoomTextureUrl(event.target.value)}
+                placeholder="Paste a direct texture URL"
+                data-testid="avatar-texture-input"
+              />
+              <div className="helper" data-testid="avatar-texture-helper">
+                Use a direct texture image URL from ambientCG to skin the room.
+              </div>
+            </label>
             <label className="form-field" data-testid="avatar-character-field">
               <span className="field-label" data-testid="avatar-character-label">
                 Character preset
