@@ -595,6 +595,7 @@ const Dashboard = () => {
   const [avatarCharacter, setAvatarCharacter] = useState("lillith-core");
   const [selectedAvatarId, setSelectedAvatarId] = useState("gothic-lillith");
   const [uploadedAvatarUrl, setUploadedAvatarUrl] = useState("");
+  const [roomTextureUrl, setRoomTextureUrl] = useState("");
   const [interactionPulse, setInteractionPulse] = useState(0);
   const [serviceHealth, setServiceHealth] = useState([]);
   const [serviceNotice, setServiceNotice] = useState("");
