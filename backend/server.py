@@ -563,6 +563,15 @@ async def get_service_base_url(service_id: str) -> str:
     return base_url
 
 
+def pick_preview_image(preview_map: Dict[str, str]) -> Optional[str]:
+    if not preview_map:
+        return None
+    for key in ["512-JPG-242424", "512-JPG-FFFFFF", "256-JPG-242424", "256-JPG-FFFFFF"]:
+        if key in preview_map:
+            return preview_map[key]
+    return next(iter(preview_map.values()))
+
+
 def fill_value(value: Optional[str], options: List[str], seed: str) -> str:
     if value:
         return value
