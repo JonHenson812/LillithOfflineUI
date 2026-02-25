@@ -760,6 +760,12 @@
   color: #ff7a7a;
 }
 
+.button-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .note-list {
   margin: 0;
   padding-left: 20px;
