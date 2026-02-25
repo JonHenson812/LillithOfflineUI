@@ -1946,7 +1946,9 @@ const VisualStudio = () => {
   const [sdNotice, setSdNotice] = useState("");
   const [sdLoading, setSdLoading] = useState(false);
 
-  const [comfyWorkflow, setComfyWorkflow] = useState("");
+  const [comfyWorkflow, setComfyWorkflow] = useState(() =>
+    JSON.stringify(defaultComfyWorkflow, null, 2)
+  );
   const [comfyImages, setComfyImages] = useState([]);
   const [comfyNotice, setComfyNotice] = useState("");
   const [comfyLoading, setComfyLoading] = useState(false);
