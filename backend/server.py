@@ -1049,7 +1049,7 @@ async def run_comfyui(request: ComfyUiRequest):
 async def search_ambientcg(q: str = "", limit: int = 12):
     query = urllib.parse.quote(q)
     limit_value = max(1, min(limit, 24))
-    url = f"https://ambientcg.com/api/v2/full_json/?q={query}&limit={limit_value}"
+    url = f"https://ambientcg.com/api/v2/full_json/?q={query}&limit={limit_value}"
     try:
         async with httpx.AsyncClient(timeout=20) as client:
             response = await client.get(url)
