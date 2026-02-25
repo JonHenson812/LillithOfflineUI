@@ -1185,6 +1185,87 @@ const Dashboard = () => {
         </div>
       </div>
 
+      <div className="glass-panel" data-testid="ambientcg-panel">
+        <div className="panel-header" data-testid="ambientcg-header">
+          <div className="panel-title" data-testid="ambientcg-title">
+            ambientCG Texture Browser
+          </div>
+          <div className="page-actions" data-testid="ambientcg-actions">
+            <button
+              className="lilith-button secondary"
+              onClick={searchAmbientCg}
+              data-testid="ambientcg-search-button"
+            >
+              {ambientLoading ? "Searching..." : "Search"}
+            </button>
+          </div>
+        </div>
+        <div className="ambientcg-search" data-testid="ambientcg-search">
+          <input
+            className="lilith-input"
+            value={ambientQuery}
+            onChange={(event) => setAmbientQuery(event.target.value)}
+            placeholder="Search textures (concrete, metal, fabric...)"
+            data-testid="ambientcg-search-input"
+          />
+          <div className="helper" data-testid="ambientcg-helper">
+            Results come from ambientCG.com (free textures). Click a result to apply it to the room.
+          </div>
+        </div>
+        {ambientNotice && (
+          <div className="notice" data-testid="ambientcg-notice">
+            {ambientNotice}
+          </div>
+        )}
+        <div className="ambientcg-grid" data-testid="ambientcg-grid">
+          {ambientResults.map((asset) => (
+            <div
+              key={asset.id}
+              className="ambientcg-card"
+              data-testid={`ambientcg-card-${asset.id}`}
+            >
+              {asset.preview && (
+                <img
+                  src={asset.preview}
+                  alt={asset.name}
+                  className="ambientcg-image"
+                  data-testid={`ambientcg-image-${asset.id}`}
+                />
+              )}
+              <div className="ambientcg-info">
+                <div className="ambientcg-name" data-testid={`ambientcg-name-${asset.id}`}>
+                  {asset.name}
+                </div>
+                <div className="helper" data-testid={`ambientcg-category-${asset.id}`}>
+                  {asset.category}
+                </div>
+              </div>
+              <div className="ambientcg-actions" data-testid={`ambientcg-actions-${asset.id}`}>
+                <button
+                  className="lilith-button"
+                  onClick={() => applyAmbientTexture(asset.preview)}
+                  data-testid={`ambientcg-apply-${asset.id}`}
+                >
+                  Use texture
+                </button>
+                <button
+                  className="lilith-button secondary"
+                  onClick={() => openAmbientLink(asset.shortLink)}
+                  data-testid={`ambientcg-open-${asset.id}`}
+                >
+                  Open asset
+                </button>
+              </div>
+            </div>
+          ))}
+          {!ambientLoading && ambientResults.length === 0 && (
+            <div className="empty-state" data-testid="ambientcg-empty">
+              Search for textures to load suggestions here.
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="grid" data-testid="agents-grid">
         {agentCards.map((agent) => (
           <div
