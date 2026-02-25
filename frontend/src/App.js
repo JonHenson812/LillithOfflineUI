@@ -1987,9 +1987,14 @@ const VisualStudio = () => {
             <div className="panel-title" data-testid="sd-title">
               Stable Diffusion WebUI
             </div>
-            <span className="panel-badge" data-testid="sd-badge">
-              txt2img
-            </span>
+            <div className="panel-status" data-testid="sd-status">
+              <span className={`status-pill ${serviceStatus.stable_diffusion}`} data-testid="sd-status-pill">
+                {serviceStatus.stable_diffusion}
+              </span>
+              <span className="panel-badge" data-testid="sd-badge">
+                txt2img
+              </span>
+            </div>
           </div>
           {sdNotice && (
             <div className="notice" data-testid="sd-notice">
