@@ -15,7 +15,7 @@ Build "Lillith Offline" (desktop-first, then web UI) to automate writing books. 
 
 ## Implemented (MVP + Phase 1 + Improvements)
 - Desktop-style app shell with navigation (Command Deck, Character Builder, Projects, Visual Studio, Plugin Bay, Services).
-- Command Deck dashboard with chat panel, 3D avatar stage, and service health widget.
+- Command Deck dashboard with chat panel, 3D avatar stage, and service health widget with loading state.
 - 3D avatar canvas with idle + emotion states (happy/curious/concerned), walking loop + approach on interaction.
 - Avatar customization: environment presets, character presets, Ready Player Me default, GLB/GLTF upload, texture URL support.
 - Character Builder with LM Studio auto-fill (fallback if LM unavailable) and attach-to-project flow.
