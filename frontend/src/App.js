@@ -689,6 +689,39 @@ const Dashboard = () => {
     window.open(service.base_url, "_blank", "noopener,noreferrer");
   };
 
+  const searchAmbientCg = async () => {
+    setAmbientLoading(true);
+    setAmbientNotice("");
+    try {
+      const response = await axios.get(`${API}/ambientcg/search`, {
+        params: { q: ambientQuery, limit: 8 },
+        timeout: 10000,
+      });
+      setAmbientResults(response.data.results || []);
+      if (!response.data.results?.length) {
+        setAmbientNotice("No textures found.");
+      }
+    } catch (error) {
+      console.error(error);
+      setAmbientNotice("ambientCG search failed.");
+    } finally {
+      setAmbientLoading(false);
+    }
+  };
+
+  const applyAmbientTexture = (url) => {
+    setRoomTextureUrl(url);
+  };
+
+  const openAmbientLink = (url) => {
+    if (!url) return;
+    if (window.lillith?.openExternal) {
+      window.lillith.openExternal(url);
+    } else {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  };
+
   const agentCards = [
     {
       id: "plot-architect",
