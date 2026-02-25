@@ -648,12 +648,15 @@ const Dashboard = () => {
   const [serviceLoading, setServiceLoading] = useState(false);
 
   const loadServiceHealth = async () => {
+    setServiceLoading(true);
     try {
       const response = await axios.get(`${API}/services`, { timeout: 5000 });
       setServiceHealth(response.data);
       setServiceUpdated(new Date().toLocaleTimeString());
     } catch (error) {
       setServiceNotice("Unable to load service status.");
+    } finally {
+      setServiceLoading(false);
     }
   };
 
