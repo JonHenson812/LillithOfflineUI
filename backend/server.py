@@ -1045,6 +1045,34 @@ async def run_comfyui(request: ComfyUiRequest):
         raise HTTPException(status_code=502, detail="ComfyUI unavailable") from exc
 
 
+@api_router.get("/ambientcg/search")
+async def search_ambientcg(q: str = "", limit: int = 12):
+    query = urllib.parse.quote(q)
+    limit_value = max(1, min(limit, 24))
+    url = f"https://ambientcg.com/api/v2/full_json/?q={query}&limit={limit_value}"
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            data = response.json()
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=502, detail="ambientCG unavailable") from exc
+
+    results = []
+    for asset in data.get("foundAssets", [])[:limit_value]:
+        preview = pick_preview_image(asset.get("previewImage", {}))
+        results.append(
+            {
+                "id": asset.get("assetId"),
+                "name": asset.get("displayName"),
+                "category": asset.get("displayCategory"),
+                "preview": preview,
+                "shortLink": asset.get("shortLink"),
+            }
+        )
+    return {"results": results, "count": len(results)}
+
+
 @api_router.get("/settings", response_model=AppSettings)
 async def get_settings_endpoint():
     settings = await fetch_settings()
