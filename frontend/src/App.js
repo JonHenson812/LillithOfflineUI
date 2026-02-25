@@ -1090,7 +1090,11 @@ const Dashboard = () => {
           </div>
         )}
         <div className="service-health-list" data-testid="service-health-list">
-          {serviceHealth.length === 0 ? (
+          {serviceLoading ? (
+            <div className="empty-state" data-testid="service-health-loading">
+              Loading service status...
+            </div>
+          ) : serviceHealth.length === 0 ? (
             <div className="empty-state" data-testid="service-health-empty">
               No services detected yet.
             </div>
