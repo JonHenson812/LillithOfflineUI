@@ -318,6 +318,7 @@ const AvatarCanvas = ({
     floor: null,
     wall: null,
   });
+  const textureRef = useRef(null);
   const interactionRef = useRef(0);
   const palettes = useMemo(
     () => ({
