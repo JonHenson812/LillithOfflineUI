@@ -1886,6 +1886,10 @@ const VisualStudio = () => {
   const [comfyImages, setComfyImages] = useState([]);
   const [comfyNotice, setComfyNotice] = useState("");
   const [comfyLoading, setComfyLoading] = useState(false);
+  const [serviceStatus, setServiceStatus] = useState({
+    stable_diffusion: "unknown",
+    comfyui: "unknown",
+  });
 
   const runStableDiffusion = async () => {
     if (!sdForm.prompt.trim()) {
