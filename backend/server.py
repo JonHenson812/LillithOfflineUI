@@ -556,7 +556,10 @@ async def get_service_base_url(service_id: str) -> str:
     service = await fetch_service(service_id)
     if not service or not service.get("base_url"):
         raise HTTPException(status_code=404, detail="Service base URL not configured")
-    return service["base_url"].rstrip("/")
+    base_url = service["base_url"].rstrip("/")
+    if not base_url.startswith("http"):
+        base_url = f"http://{base_url}"
+    return base_url
 
 
 def fill_value(value: Optional[str], options: List[str], seed: str) -> str:
