@@ -1891,9 +1891,29 @@ const VisualStudio = () => {
     comfyui: "unknown",
   });
 
+  useEffect(() => {
+    const loadStatuses = async () => {
+      try {
+        const response = await axios.get(`${API}/services`, { timeout: 5000 });
+        const statusMap = response.data.reduce((acc, service) => {
+          acc[service.id] = service.status || "unknown";
+          return acc;
+        }, {});
+        setServiceStatus((prev) => ({ ...prev, ...statusMap }));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    loadStatuses();
+  }, []);
+
   const runStableDiffusion = async () => {
     if (!sdForm.prompt.trim()) {
       setSdNotice("Add a prompt before generating.");
+      return;
+    }
+    if (serviceStatus.stable_diffusion !== "online") {
+      setSdNotice("Stable Diffusion is offline. Start it from Services.");
       return;
     }
     setSdLoading(true);
@@ -1923,6 +1943,10 @@ const VisualStudio = () => {
   const runComfyUi = async () => {
     if (!comfyWorkflow.trim()) {
       setComfyNotice("Paste a ComfyUI workflow JSON first.");
+      return;
+    }
+    if (serviceStatus.comfyui !== "online") {
+      setComfyNotice("ComfyUI is offline. Start it from Services.");
       return;
     }
     setComfyLoading(true);
