@@ -3,6 +3,8 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route, NavLink, useNavigate } from "react-router-dom";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { TextureLoader } from "three";
+import defaultComfyWorkflow from "./data/lillithWorkflow.json";
 import axios from "axios";
 import {
   Bot,
