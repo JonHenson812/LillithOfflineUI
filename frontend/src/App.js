@@ -645,6 +645,7 @@ const Dashboard = () => {
   const [serviceHealth, setServiceHealth] = useState([]);
   const [serviceNotice, setServiceNotice] = useState("");
   const [serviceUpdated, setServiceUpdated] = useState("");
+  const [serviceLoading, setServiceLoading] = useState(false);
 
   const loadServiceHealth = async () => {
     try {
