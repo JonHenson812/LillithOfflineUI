@@ -646,6 +646,10 @@ const Dashboard = () => {
   const [serviceNotice, setServiceNotice] = useState("");
   const [serviceUpdated, setServiceUpdated] = useState("");
   const [serviceLoading, setServiceLoading] = useState(false);
+  const [ambientQuery, setAmbientQuery] = useState("concrete");
+  const [ambientResults, setAmbientResults] = useState([]);
+  const [ambientLoading, setAmbientLoading] = useState(false);
+  const [ambientNotice, setAmbientNotice] = useState("");
 
   const loadServiceHealth = async () => {
     setServiceLoading(true);
